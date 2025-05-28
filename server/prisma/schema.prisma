@@ -1,0 +1,149 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  password   String
+  fullName   String
+  role       Role
+  matricNo   String   @unique
+  createdAt  DateTime @default(now())
+
+  enrollments       Enrollment[]
+  coursesCreated    Course[]      @relation("LecturerCourses")
+  lectureProgresses LectureProgress[]
+  attendanceLogs    AttendanceLog[]
+  discussionPosts   DiscussionPost[]
+  discussionReplies DiscussionReply[]
+  attendanceReports AttendanceReport[]
+}
+
+model Course {
+  id          String     @id @default(cuid())
+  title       String
+  code        String     @unique
+  description String?
+  createdAt   DateTime   @default(now())
+  lecturerId  String
+
+  lecturer    User       @relation("LecturerCourses", fields: [lecturerId], references: [id])
+  enrollments Enrollment[]
+  lectures    Lecture[]
+  discussionPosts DiscussionPost[]
+  attendanceReports AttendanceReport[]
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  enrolledAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+}
+
+model Lecture {
+  id         String   @id @default(cuid())
+  title      String
+  videoUrl   String
+  courseId   String
+  createdAt  DateTime @default(now())
+
+  course     Course   @relation(fields: [courseId], references: [id])
+  progresses LectureProgress[]
+  quizzes    Quiz[]
+  attendanceLogs AttendanceLog[]
+}
+
+model LectureProgress {
+  id         String   @id @default(cuid())
+  userId     String
+  lectureId  String
+  watched    Boolean  @default(false)
+  watchTime  Int      @default(0)
+  skippedTime Int     @default(0)
+  playbackSpeed Float @default(1.0)
+  completedAt DateTime?
+
+  user     User    @relation(fields: [userId], references: [id])
+  lecture  Lecture @relation(fields: [lectureId], references: [id])
+}
+
+model AttendanceLog {
+  id         String   @id @default(cuid())
+  userId     String
+  lectureId  String
+  markedAt   DateTime @default(now())
+  engagementScore Int
+  wasPresent Boolean
+
+  user    User    @relation(fields: [userId], references: [id])
+  lecture Lecture @relation(fields: [lectureId], references: [id])
+}
+
+model Quiz {
+  id        String   @id @default(cuid())
+  question  String
+  options   String //used to store JSON array of option (change in production to string[])
+  correctAnswer String
+  lectureId String
+
+  lecture Lecture @relation(fields: [lectureId], references: [id])
+}
+
+model AttendanceReport {
+  id        String   @id @default(cuid())
+  courseId  String
+  lecturerId String
+  reportUrl String
+  generatedAt DateTime @default(now())
+
+  lecturer User   @relation(fields: [lecturerId], references: [id])
+  course   Course @relation(fields: [courseId], references: [id])
+}
+
+model DiscussionPost {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+  replies DiscussionReply[]
+}
+
+model DiscussionReply {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+
+  post DiscussionPost @relation(fields: [postId], references: [id])
+  user User           @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  STUDENT
+  LECTURER
+  ADMIN
+}
+
