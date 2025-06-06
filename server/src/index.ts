@@ -1,11 +1,15 @@
-require("dotenv").config();
-import { Request, Response } from "express";
-const express = require("express");
+import * as dotenv from "dotenv";
+import express, { Request, Response } from "express";
+import cors from "cors";
+import authRoutes from "./routes/authRoutes";
+import studentRoutes from "./routes/studentRoutes";
+import cookieParser from "cookie-parser";
+dotenv.config()
+
 const app = express();
-const cors = require("cors");
 const PORT = 8080;
 
-
+app.use(cookieParser())
 app.use(express.json());
 app.use(
   cors({
@@ -19,6 +23,11 @@ app.get("/", (req:Request, res:Response) => {
     res.send("server running")
 })
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// routes
+app.use("/api/auth", authRoutes)
+app.use("/api/students", studentRoutes);
+
+
+app.listen(process.env.PORT || PORT, () => {
+  console.log(`Server running on port ${PORT || process.env.PORT}`);
 });
