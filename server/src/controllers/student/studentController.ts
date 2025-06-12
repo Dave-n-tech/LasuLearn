@@ -1,11 +1,11 @@
-import { Request, Response } from "express";
+import { Request, Response, Application } from "express";
 import prisma from "../../utils/prismaClient";
 import { Role } from "../../../generated/prisma";
 
 export const getAllStudents = async (
   req: Request,
   res: Response
-): Promise<void> => {
+) => {
   // get all students
   try {
     const students = await prisma.user.findMany({
@@ -16,7 +16,7 @@ export const getAllStudents = async (
 
     if (!students) {
       res.status(404).json({ message: "No students found in database" });
-      return;
+      return
     }
 
     res.json(students);
@@ -29,7 +29,7 @@ export const getAllStudents = async (
 export const getStudentById = async (
   req: Request,
   res: Response
-): Promise<void> => {
+) => {
   // get a student by id
   const id = parseInt(req.params.id);
 
@@ -56,15 +56,20 @@ export const getStudentById = async (
 export const updateStudent = async (
   req: Request,
   res: Response
-): Promise<void> => {
+) => {
   const id = parseInt(req.params.id);
+  const {firstName, lastName, email} = req.body;
 
   try {
     const student = await prisma.user.update({
       where: {
         id,
       },
-      data: req.body,
+      data: {
+        firstName,
+        lastName,
+        email,
+      },
     });
 
     res.json({ message: "student updated successfully", student });

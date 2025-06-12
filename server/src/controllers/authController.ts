@@ -26,14 +26,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (!user) {
-      res.status(401).json({ message: "invalid email" });
+      res.status(401).json({ message: "invalid email or password" });
       return;
     }
 
     const passwordFound = await bcrypt.compare(password, user.password);
-
     if (!passwordFound) {
-      res.status(401).json({ message: "invalid password" });
+      res.status(401).json({ message: "invalid email or password" });
+      return
     }
 
     const accessToken = generateAccessToken(user.id, user.role);

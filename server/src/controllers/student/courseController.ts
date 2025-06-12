@@ -6,7 +6,7 @@ import prisma from "../../utils/prismaClient";
 export const getAllCourses = async (
   req: Request,
   res: Response
-): Promise<void> => {
+) => {
   try {
     const courses = await prisma.course.findMany();
 
@@ -26,7 +26,7 @@ export const getAllCourses = async (
 export const getCourseDetails = async (
   req: JwtRequest,
   res: Response
-): Promise<void> => {
+) => {
   const courseId = parseInt(req.params.courseId);
   const studentId = req.user?.userId;
 
@@ -93,10 +93,10 @@ export const getCourseDetails = async (
           description: course.description,
         },
       });
+      return;
     }
 
     res.json(course);
-    return;
   } catch (error) {
     console.error("an error occurred");
     res.status(500).json({ message: "Error finding course" });
@@ -107,7 +107,7 @@ export const getCourseDetails = async (
 export const getEnrolledCourses = async (
   req: JwtRequest,
   res: Response
-): Promise<void> => {
+) => {
   const studentId = req.user?.userId;
 
   try {
@@ -129,11 +129,11 @@ export const getEnrolledCourses = async (
   }
 };
 
-// enroll studnt in a course
+// enroll student in a course
 export const enrollInCourse = async (
   req: JwtRequest,
   res: Response
-): Promise<void> => {
+) => {
   const studentId = req.user?.userId;
   const courseId = parseInt(req.params.courseId);
 
@@ -167,7 +167,6 @@ export const enrollInCourse = async (
     res
       .status(201)
       .json({ message: "Successfully enrolled in course", enrollment });
-    return;
   } catch (error) {
     console.error("An error occurred", error);
     res.status(500).json({ message: "Error enrolling in course" });

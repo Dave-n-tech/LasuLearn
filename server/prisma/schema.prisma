@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -10,37 +9,39 @@ datasource db {
 }
 
 model User {
-  id                 Int                  @id @default(autoincrement())
-  email              String               @unique
-  password           String
-  firstName          String
-  lastName           String
-  role               Role
-  matricNo           String?              @unique
-  createdAt          DateTime             @default(now())
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      Role
+  matricNo  String?  @unique
+  createdAt DateTime @default(now())
 
-  enrollments        Enrollment[]         // For students
-  coursesCreated     Course[]             @relation("LecturerCourses") // For lecturers
-  lectureProgresses  LectureProgress[]
-  attendanceLogs     AttendanceLog[]
-  discussionPosts    DiscussionPost[]
-  discussionReplies  DiscussionReply[]
-  attendanceReports  AttendanceReport[]   // For lecturers
+  enrollments       Enrollment[] // For students
+  coursesCreated    Course[]           @relation("LecturerCourses") // For lecturers
+  lectureProgresses LectureProgress[]
+  attendanceLogs    AttendanceLog[]
+  discussionPosts   DiscussionPost[]
+  discussionReplies DiscussionReply[]
+  attendanceReports AttendanceReport[] // For lecturers
+  quizSubmissions   QuizSubmission[] // for students
+  notifications Notification[]
 }
 
 model Course {
-  id                 Int                  @id @default(autoincrement())
-  title              String
-  code               String               @unique
-  description        String?
-  createdAt          DateTime             @default(now())
-  lecturerId         Int
+  id          Int      @id @default(autoincrement())
+  title       String
+  code        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  lecturerId  Int
 
-  lecturer           User                 @relation("LecturerCourses", fields: [lecturerId], references: [id])
-  enrollments        Enrollment[]
-  lectures           Lecture[]
-  discussionPosts    DiscussionPost[]
-  attendanceReports  AttendanceReport[]
+  lecturer          User               @relation("LecturerCourses", fields: [lecturerId], references: [id])
+  enrollments       Enrollment[]
+  lectures          Lecture[]
+  discussionPosts   DiscussionPost[]
+  attendanceReports AttendanceReport[]
 }
 
 model Enrollment {
@@ -49,35 +50,37 @@ model Enrollment {
   courseId   Int
   enrolledAt DateTime @default(now())
 
-  user       User     @relation(fields: [userId], references: [id])
-  course     Course   @relation(fields: [courseId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
 }
 
 model Lecture {
-  id              Int               @id @default(autoincrement())
-  title           String
-  videoUrl        String
-  courseId        Int
-  createdAt       DateTime          @default(now())
+  id        Int      @id @default(autoincrement())
+  title     String
+  videoUrl  String
+  courseId  Int
+  duration  Int
+  createdAt DateTime @default(now())
 
   course          Course            @relation(fields: [courseId], references: [id])
   progresses      LectureProgress[]
   quizzes         Quiz[]
   attendanceLogs  AttendanceLog[]
+  quizSubmissions QuizSubmission[]
 }
 
 model LectureProgress {
-  id             Int      @id @default(autoincrement())
-  userId         Int
-  lectureId      Int
-  watched        Boolean  @default(false)
-  watchTime      Int      @default(0)
-  skippedTime    Int      @default(0)
-  playbackSpeed  Float    @default(1.0)
-  completedAt    DateTime?
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  lectureId     Int
+  watched       Boolean   @default(false)
+  watchTime     Int       @default(0)
+  skippedTime   Int       @default(0)
+  playbackSpeed Float     @default(1.0)
+  completedAt   DateTime?
 
-  user           User     @relation(fields: [userId], references: [id])
-  lecture        Lecture  @relation(fields: [lectureId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  lecture Lecture @relation(fields: [lectureId], references: [id])
 }
 
 model AttendanceLog {
@@ -88,18 +91,44 @@ model AttendanceLog {
   engagementScore Int
   wasPresent      Boolean
 
-  user            User     @relation(fields: [userId], references: [id])
-  lecture         Lecture  @relation(fields: [lectureId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  lecture Lecture @relation(fields: [lectureId], references: [id])
 }
 
 model Quiz {
-  id             Int      @id @default(autoincrement())
-  question       String
-  options        String   // Store as JSON stringified array (e.g., '["A", "B", "C"]')
-  correctAnswer  String
-  lectureId      Int
+  id            Int    @id @default(autoincrement())
+  question      String
+  options       String // Store as JSON stringified array (e.g., '["A", "B", "C"]')
+  correctAnswer String
+  lectureId     Int
 
-  lecture        Lecture  @relation(fields: [lectureId], references: [id])
+  lecture         Lecture          @relation(fields: [lectureId], references: [id])
+  quizSubmissions QuizSubmission[]
+}
+
+model QuizSubmission {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  quizId         Int
+  lectureId      Int
+  selectedAnswer String
+  isCorrect      Boolean
+  submittedAt    DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  quiz    Quiz    @relation(fields: [quizId], references: [id])
+  lecture Lecture @relation(fields: [lectureId], references: [id])
+}
+
+model Notification {
+  id Int @id @default(autoincrement())
+  userId Int
+  title String
+  message String
+  isRead Boolean @default(false)
+  creaatedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model AttendanceReport {
@@ -109,8 +138,8 @@ model AttendanceReport {
   reportUrl   String
   generatedAt DateTime @default(now())
 
-  lecturer    User     @relation(fields: [lecturerId], references: [id])
-  course      Course   @relation(fields: [courseId], references: [id])
+  lecturer User   @relation(fields: [lecturerId], references: [id])
+  course   Course @relation(fields: [courseId], references: [id])
 }
 
 model DiscussionPost {
@@ -120,9 +149,9 @@ model DiscussionPost {
   content   String
   createdAt DateTime @default(now())
 
-  user      User              @relation(fields: [userId], references: [id])
-  course    Course            @relation(fields: [courseId], references: [id])
-  replies   DiscussionReply[]
+  user    User              @relation(fields: [userId], references: [id])
+  course  Course            @relation(fields: [courseId], references: [id])
+  replies DiscussionReply[]
 }
 
 model DiscussionReply {
@@ -132,8 +161,8 @@ model DiscussionReply {
   content   String
   createdAt DateTime @default(now())
 
-  post      DiscussionPost  @relation(fields: [postId], references: [id])
-  user      User            @relation(fields: [userId], references: [id])
+  post DiscussionPost @relation(fields: [postId], references: [id])
+  user User           @relation(fields: [userId], references: [id])
 }
 
 enum Role {
