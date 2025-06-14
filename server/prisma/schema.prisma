@@ -148,6 +148,7 @@ model DiscussionPost {
   courseId  Int
   content   String
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   user    User              @relation(fields: [userId], references: [id])
   course  Course            @relation(fields: [courseId], references: [id])
@@ -160,6 +161,7 @@ model DiscussionReply {
   userId    Int
   content   String
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   post DiscussionPost @relation(fields: [postId], references: [id])
   user User           @relation(fields: [userId], references: [id])

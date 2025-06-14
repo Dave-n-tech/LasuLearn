@@ -24,8 +24,5 @@ router.patch("/lectures/:lectureId/progress", verifyToken([Role.STUDENT]), updat
 router.post("/lectures/:lectureId/quizzes/submit", verifyToken([Role.STUDENT]), submitQuizResponse) // submit quiz response
 router.post("/lectures/:lectureId/attendance", verifyToken([Role.STUDENT]) , markAttendance)
 
-// discussions
-// router.get("/discussions", verifyToken([Role.STUDENT, Role.LECTURER, Role.ADMIN]), getAllDiscussions)
-// router.get("/discussions/:discussionId", verifyToken([Role.STUDENT, Role.LECTURER, Role.ADMIN]), getDiscussionById)
 
 export default router;

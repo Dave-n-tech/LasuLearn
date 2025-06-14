@@ -4,6 +4,7 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes";
 import studentRoutes from "./routes/studentRoutes";
 import notificationRoutes from "./routes/notificationRoutes";
+import discussionRoutes from "./routes/discussionRoutes";
 import cookieParser from "cookie-parser";
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.get("/", (req: Request, res: Response) => {
 // routes
 app.use("/api/auth", authRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/discussions", discussionRoutes);
 app.use("/api/students", studentRoutes);
 
 // server
