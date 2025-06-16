@@ -172,3 +172,35 @@ export const enrollInCourse = async (
     res.status(500).json({ message: "Error enrolling in course" });
   }
 };
+
+// get attendance for all lectures of a course
+export const getStudentCourseAttendance = async (req: JwtRequest, res: Response) => {
+  const courseId = parseInt(req.params.courseId)
+  const studentId = req.user?.userId
+  
+  try {
+    const courseAttendance = await prisma.lecture.findMany({
+      where: {
+        courseId
+      },
+      include: {
+        attendanceLogs: {
+          select: {
+            markedAt: true,
+            engagementScore: true,
+            wasPresent: true
+          }
+        }
+      }
+    })
+
+    if(courseAttendance.length == 0){
+      res.status(404).json({ message: "no attendance for this course"})
+    }
+
+    res.status(200).json({ courseAttendance })
+  } catch (error) {
+    console.error("An error occurred", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}

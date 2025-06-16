@@ -3,6 +3,7 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes";
 import studentRoutes from "./routes/studentRoutes";
+import lecturerRoutes from "./routes/lecturerRoutes"
 import notificationRoutes from "./routes/notificationRoutes";
 import discussionRoutes from "./routes/discussionRoutes";
 import cookieParser from "cookie-parser";
@@ -30,6 +31,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/discussions", discussionRoutes);
 app.use("/api/students", studentRoutes);
+app.use("/api/lecturers", lecturerRoutes);
 
 // server
 app.listen(process.env.PORT || PORT, () => {
