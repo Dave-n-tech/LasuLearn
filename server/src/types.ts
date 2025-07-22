@@ -5,5 +5,6 @@ export interface JwtRequest extends Request {
   user?: {
     userId: number,
     role: Role
-  }
+  },
+  file?: File
 }

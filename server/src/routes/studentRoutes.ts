@@ -2,14 +2,14 @@ import express from "express";
 import { verifyToken } from "../middleware/authMiddleware";
 import { Role } from "../../generated/prisma";
 import { enrollInCourse, getAllCourses, getCourseDetails, getEnrolledCourses, getStudentCourseAttendance} from "../controllers/student/courseController";
-import { getAllStudents, getStudentById, updateStudent } from "../controllers/student/studentController";
+import { getAllStudents, getStudentById, updateStudentById } from "../controllers/student/studentController";
 import { getLectureProgress, getAllLectureProgressForStudent, markAttendance, submitQuizResponse, updateLectureProgress } from "../controllers/student/lectureController";
 const router = express.Router();
 
 // students
 router.get("/", getAllStudents)
-router.get("/:id", getStudentById)
-router.patch("/:id", verifyToken([Role.STUDENT]), updateStudent)
+router.get("/:id", verifyToken([Role.STUDENT]), getStudentById)
+router.patch("/:id", verifyToken([Role.STUDENT]), updateStudentById)
 
 // courses
 router.get("/courses", verifyToken([Role.STUDENT, Role.LECTURER, Role.ADMIN]), getAllCourses)

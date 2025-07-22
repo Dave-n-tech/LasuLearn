@@ -17,10 +17,12 @@
     "@prisma/client": "^6.8.2",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
+    "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "express-fileupload": "^1.5.2",
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
@@ -28,8 +30,9 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.2",
+    "@types/express-fileupload": "^1.5.1",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^22.15.23",
+    "@types/node": "^22.16.2",
     "nodemon": "^3.1.10",
     "prisma": "^6.8.2",
     "ts-node": "^10.9.2",

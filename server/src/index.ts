@@ -7,11 +7,13 @@ import lecturerRoutes from "./routes/lecturerRoutes"
 import notificationRoutes from "./routes/notificationRoutes";
 import discussionRoutes from "./routes/discussionRoutes";
 import cookieParser from "cookie-parser";
+import fileUpload from "express-fileupload";
 dotenv.config();
 
 const app = express();
 const PORT = 8080;
 
+app.use(fileUpload());
 app.use(cookieParser());
 app.use(express.json());
 app.use(

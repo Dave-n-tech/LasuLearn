@@ -185,7 +185,11 @@ export const getStudentCourseAttendance = async (req: JwtRequest, res: Response)
       },
       include: {
         attendanceLogs: {
+          where: {
+            userId: studentId
+          },
           select: {
+            userId: true,
             markedAt: true,
             engagementScore: true,
             wasPresent: true
@@ -203,4 +207,8 @@ export const getStudentCourseAttendance = async (req: JwtRequest, res: Response)
     console.error("An error occurred", error);
     res.status(500).json({ message: "Internal server error" });
   }
+}
+
+export const addQuizQuestionsToLecture = async (req: JwtRequest, res: Response) => {
+  
 }
