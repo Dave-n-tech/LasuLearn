@@ -20,22 +20,25 @@ import {
   updateLectureById,
   uploadLectureVideo,
 } from "../controllers/lecturer/lecturerCourseController";
-import { addQuizQuestionsToLecture } from "../controllers/student/courseController";
+import {
+  addLectureQuizzes,
+  deleteQuizById,
+  generateAttendanceReport,
+  getAttendanceReport,
+  getLectureQuizzes,
+  getQuizById,
+  updateQuizById,
+} from "../controllers/student/courseController";
 
 const router = express.Router();
 
 // Routes:
 
 // profile:
-// - view own profile
-// - update profile info
 router.get("/:id", verifyToken([Role.LECTURER]), getLecturerById);
 router.patch("/:id", verifyToken([Role.LECTURER]), updateLecturerById);
 
 // Student management
-// - get list of students enrolled in a course
-// - get a student's attendance log for a course
-// - view a student's attendance + quiz performance
 router.get(
   "/courses/:courseId/students",
   verifyToken([Role.LECTURER]),
@@ -53,11 +56,6 @@ router.get(
 );
 
 // Course management:
-// - create a new course
-// - get all courses taken by the lecturer
-// - get detailed info on a specific course
-// - update course metadata
-// - delete a course
 router.post("/courses", verifyToken([Role.LECTURER]), createCourse);
 router.get("/courses", verifyToken([Role.LECTURER]), getCoursesByLecturerId);
 router.get(
@@ -78,33 +76,30 @@ router.delete(
 
 // Lecture and Content management:
 
-// - upload a new lecture video
 router.post(
   "/courses/:courseId/lectures",
   verifyToken([Role.LECTURER]),
   uploadLectureVideo
 );
 
-// - get all lectures for a course
 router.get(
   "/courses/:courseId/lectures",
   verifyToken([Role.STUDENT, Role.LECTURER, Role.ADMIN]),
   getAllLecturesByCourseId
 );
 
-// - get details of a specific lecture
 router.get(
   "/courses/lectures/:lectureId",
   verifyToken([Role.STUDENT, Role.LECTURER]),
   getLectureDetailsById
 );
-// - update lecture metadata
+
 router.patch(
   "/courses/lectures/:lectureId",
   verifyToken([Role.LECTURER, Role.ADMIN]),
   updateLectureById
 );
-// - delete a lecture
+
 router.delete(
   "/courses/lectures/:lectureId",
   verifyToken([Role.LECTURER, Role.ADMIN]),
@@ -112,29 +107,48 @@ router.delete(
 );
 
 // Quiz management
-// - add quiz questions to a lecture
 router.post(
   "/lectures/:lectureId/quizzes",
-  verifyToken([Role.LECTURER]),
-  addQuizQuestionsToLecture
+  verifyToken([Role.LECTURER, Role.ADMIN]),
+  addLectureQuizzes
 );
-// - view all quiz questions for a lecture
-router.get("/lectures/:lectureId/quizzes", verifyToken([Role.LECTURER]));
-// - edit a quiz question
-router.patch("/lectures/quizzes/:quizId", verifyToken([Role.LECTURER]));
-// - delete a quiz question
-router.delete("/lectures/quizzes/:quizId", verifyToken([Role.LECTURER]));
+
+router.get(
+  "/lectures/:lectureId/quizzes",
+  verifyToken([Role.STUDENT, Role.LECTURER, Role.ADMIN]),
+  getLectureQuizzes
+);
+
+router.get(
+  "/lectures/quizzes/:quizId",
+  verifyToken([Role.STUDENT, Role.LECTURER, Role.ADMIN]),
+  getQuizById
+);
+
+router.patch(
+  "/lectures/quizzes/:quizId",
+  verifyToken([Role.LECTURER, Role.ADMIN]),
+  updateQuizById
+);
+
+router.delete(
+  "/lectures/quizzes/:quizId",
+  verifyToken([Role.LECTURER, Role.ADMIN]),
+  deleteQuizById
+);
+
 
 // Attendance reports
-// - generate course attendance report
 router.post(
   "/courses/:courseId/attendance-report",
-  verifyToken([Role.LECTURER])
+  verifyToken([Role.LECTURER, Role.ADMIN]),
+  generateAttendanceReport
 );
-// - view/download report for a course
+
 router.get(
   "/courses/:courseId/attendance-report",
-  verifyToken([Role.LECTURER])
+  verifyToken([Role.LECTURER, Role.ADMIN]),
+  getAttendanceReport
 );
 
 export default router;
