@@ -8,6 +8,7 @@ import {
   generateRefreshToken,
 } from "../utils/generateTokens";
 import { handleUserRegistration } from "../utils/registerUser";
+import { JwtRequest } from "../types";
 
 // login for all roles
 export const login = async (req: Request, res: Response): Promise<void> => {
@@ -48,7 +49,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       .json({
         message: "login successful",
         user: user,
-        accessToken,
+        access_token: accessToken,
       });
   } catch (error) {
     console.error(error);
@@ -236,6 +237,28 @@ export const refreshAccessToken = async (
     return;
   }
 };
+
+export const verifyAccessToken = async (req: JwtRequest, res: Response) => {
+  if (req.user) {
+
+    // get user from db
+
+    const user = await prisma.user.findFirst({
+      where: {
+        id: req.user?.userId
+      }
+    })
+
+    res.status(200).json({
+      message: "Token is valid",
+      user: user
+    });
+    return; 
+  } else {
+    res.status(401).json({ message: "Unauthorized: Token not verified" });
+    return;
+  }
+}
 
 // logout
 export const logout = async (req: Request, res: Response): Promise<void> => {

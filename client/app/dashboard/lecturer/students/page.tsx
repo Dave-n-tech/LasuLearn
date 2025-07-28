@@ -2,6 +2,6 @@ import React from 'react'
 
 export default function page() {
   return (
-    <div>Lecturer dashboard</div>
+    <div>students page</div>
   )
 }

@@ -112,6 +112,57 @@ export const getEnrolledCourses = async (req: JwtRequest, res: Response) => {
       where: {
         userId: studentId,
       },
+      include: {
+        course: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            code: true,
+            lecturer: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+            lectures: {
+              select: {
+                id: true,
+                title: true,
+                videoUrl: true,
+                duration: true,
+                createdAt: true,
+                attendanceLogs: {
+                  where: {
+                    userId: studentId,
+                  },
+                  select: {
+                    engagementScore: true,
+                    markedAt: true,
+                    wasPresent: true,
+                  },
+                },
+                progresses: {
+                  where: {
+                    userId: studentId,
+                  },
+                  select: {
+                    id: true,
+                    watched: true,
+                    watchTime: true,
+                    skippedTime: true,
+                    completedAt: true,
+                  },
+                }
+              },
+              orderBy: {
+                createdAt: "asc",
+              },
+            }
+          },
+        },
+      },
     });
 
     if (!enrolledCourses) {
