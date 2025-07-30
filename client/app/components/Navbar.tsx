@@ -2,7 +2,6 @@
 import Image from "next/image";
 import UserMenu from "../layout/userMenu";
 import lasuLogo from "../../public/logos/lasu_logo.png";
-import { useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import Link from "next/link";
 
@@ -31,7 +30,7 @@ export const Navbar = () => {
         </Link> */}
         {user && (
           <Link
-            href={"/dashboard/${user.role}"}
+            href={`/dashboard/${user.role.toLowerCase()}/?id=${user.id}`}
             className="text-white hover:bg-blue-500 rounded-md px-4 py-2"
           >
             Dashboard

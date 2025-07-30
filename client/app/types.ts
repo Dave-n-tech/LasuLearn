@@ -1,6 +1,7 @@
 import { LucideIcon } from "lucide-react";
 
 export type User = {
+  id: Number;
   firstName: string;
   lastName: string;
   email: string;
@@ -33,11 +34,12 @@ export type RegisterFormData = {
 export type LoginFormData = {
   email: string;
   password: string;
-}
+};
 
 export type AppContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
+  token: string | null;
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   loading: boolean;
@@ -50,3 +52,67 @@ export type AppContextType = {
 };
 
 // student dashboard types
+export interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  createdAt: Date;
+  isRead: boolean;
+}
+
+export interface CourseLecture {
+  id: string;
+  title: string;
+  videoUrl: string;
+  courseId: number;
+  duration: number;
+  createdAt: Date;
+  quizzes: {
+    id: number;
+    question: string;
+    options: string;
+  }[];
+}
+
+export interface CourseLectureProgress {
+  id: string;
+  title: string;
+  videoUrl: string;
+  duration: number;
+  createdAt: string;
+  attendanceLogs: {
+    engagementScore: number;
+    markedAt: string;
+    wasPresent: boolean;
+  }[];
+  progresses: {
+    id: string;
+    watched: boolean;
+    watchTime: number;
+    skippedTime: number;
+    completedAt: string | null;
+  }[];
+  quizSubmissions: {
+    id: string;
+    quizId: string;
+    lectureId: string;
+  }[];
+}
+
+export interface CourseLecturer {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface EnrolledCourse {
+  course: {
+    id: string;
+    title: string;
+    description: string;
+    code: string;
+    lecturer: CourseLecturer;
+    lectures: CourseLectureProgress[];
+  };
+}

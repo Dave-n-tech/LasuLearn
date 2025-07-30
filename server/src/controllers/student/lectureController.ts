@@ -2,10 +2,7 @@ import { Response } from "express";
 import { JwtRequest } from "../../types";
 import prisma from "../../utils/prismaClient";
 
-export const updateLectureProgress = async (
-  req: JwtRequest,
-  res: Response
-) => {
+export const updateLectureProgress = async (req: JwtRequest, res: Response) => {
   const lectureId = parseInt(req.params.lectureId);
   const { watched, watchTime, skippedTime, playbackSpeed } = req.body;
   const studentId = req.user?.userId;
@@ -65,10 +62,7 @@ export const updateLectureProgress = async (
   }
 };
 
-export const submitQuizResponse = async (
-  req: JwtRequest,
-  res: Response
-) => {
+export const submitQuizResponse = async (req: JwtRequest, res: Response) => {
   const lectureId = parseInt(req.params.lectureId);
   const studentId = req.user?.userId;
   const { responses } = req.body;
@@ -145,10 +139,7 @@ export const submitQuizResponse = async (
   }
 };
 
-export const markAttendance = async (
-  req: JwtRequest,
-  res: Response
-) => {
+export const markAttendance = async (req: JwtRequest, res: Response) => {
   const studentId = req.user?.userId;
   const lectureId = parseInt(req.params.lectureId);
 
@@ -276,30 +267,71 @@ export const markAttendance = async (
   }
 };
 
-export const getLectureProgress = async (req: JwtRequest, res: Response) => {
-  const lectureId = parseInt(req.params.lectureId)
-  const studentId = req.user?.userId
+export const getLectureById = async (req: JwtRequest, res: Response) => {
+  const lectureId = parseInt(req.params.lectureId);
+  const studentId = req.user?.userId;
 
-  if(!studentId){
+  if (!studentId) {
     res.status(401).json({
-      message: "Unauthorized"
-    })
-    return
+      message: "Unauthorized",
+    });
+    return;
+  }
+
+  try {
+    const lecture = await prisma.lecture.findFirst({
+      where: {
+        id: lectureId,
+      },
+      include: {
+        quizzes: {
+          select: {
+            id: true,
+            question: true,
+            options: true,
+          },
+        },
+      },
+    });
+
+    if(!lecture){
+      res.status(404).json({
+        message: "Lecture not found."
+      })
+    }
+
+    res.status(200).json({ lecture: lecture })
+
+  } catch (error) {
+    console.error("Error fetching lecture", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getLectureProgress = async (req: JwtRequest, res: Response) => {
+  const lectureId = parseInt(req.params.lectureId);
+  const studentId = req.user?.userId;
+
+  if (!studentId) {
+    res.status(401).json({
+      message: "Unauthorized",
+    });
+    return;
   }
 
   try {
     const progress = await prisma.lectureProgress.findFirst({
       where: {
         userId: studentId,
-        lectureId
-      }
-    })
+        lectureId,
+      },
+    });
 
-    if(!progress){
+    if (!progress) {
       res.status(404).json({
-        message: "Progress not found for this lecture."
-      })
-      return
+        message: "Progress not found for this lecture.",
+      });
+      return;
     }
 
     res.status(200).json({
@@ -308,29 +340,31 @@ export const getLectureProgress = async (req: JwtRequest, res: Response) => {
       watchTime: progress?.watchTime,
       skippedTime: progress?.skippedTime,
       playbackSpeed: progress?.playbackSpeed,
-      completedAt: progress?.completedAt
-    })
-    
+      completedAt: progress?.completedAt,
+    });
   } catch (error) {
-    console.error("Error fetching lecture progress", error)
-    res.status(500).json({ message: "Internal server error"})
+    console.error("Error fetching lecture progress", error);
+    res.status(500).json({ message: "Internal server error" });
   }
-}
+};
 
-export const getAllLectureProgressForStudent = async (req: JwtRequest, res: Response) => {
-  const studentId = req.user?.userId
+export const getAllLectureProgressForStudent = async (
+  req: JwtRequest,
+  res: Response
+) => {
+  const studentId = req.user?.userId;
 
-  if(!studentId){
+  if (!studentId) {
     res.status(401).json({
-      message: "Unauthorized: Invalid Student ID"
-    })
-    return
+      message: "Unauthorized: Invalid Student ID",
+    });
+    return;
   }
 
   try {
     const progresses = await prisma.user.findMany({
       where: {
-        id: studentId
+        id: studentId,
       },
       include: {
         lectureProgresses: {
@@ -340,33 +374,32 @@ export const getAllLectureProgressForStudent = async (req: JwtRequest, res: Resp
             watchTime: true,
             skippedTime: true,
             playbackSpeed: true,
-            completedAt: true
+            completedAt: true,
           },
           include: {
             lecture: {
-              select: {
-
-              },
+              select: {},
               include: {
-                course: true
-              }
-            }
-          }
-        }
-      }
-    })
+                course: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
-    if(!progresses){
-      res.status(404).json({ message: "lecture progresses not found for student"})
-      return
+    if (!progresses) {
+      res
+        .status(404)
+        .json({ message: "lecture progresses not found for student" });
+      return;
     }
-    
-    res.status(200).json({
-      progresses
-    })
 
+    res.status(200).json({
+      progresses,
+    });
   } catch (error) {
-    console.error("Error geting student lecture progresses", error)
-    res.status(500).json({ message: "Internal server error"})
+    console.error("Error geting student lecture progresses", error);
+    res.status(500).json({ message: "Internal server error" });
   }
-}
+};

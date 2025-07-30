@@ -2,10 +2,13 @@
 import React from 'react'
 import { UserIcon, MailIcon, PhoneIcon, BookOpenIcon, CheckCircleIcon } from 'lucide-react';
 import { useStudentDashboard } from '../context/studentContext';
+import { getLectureCompletionStats } from '@/app/helpers';
 
 export default function page() {
-  const { user } = useStudentDashboard()
+  const { user, enrolledCourses } = useStudentDashboard()
   const userName = `${user?.firstName} ${user?.lastName}`
+
+  const { total, completed } = getLectureCompletionStats(enrolledCourses);
 
   return (
     <div className="space-y-6">
@@ -55,7 +58,7 @@ export default function page() {
                     Current Courses
                   </span>
                 </div>
-                <p className="text-2xl font-semibold text-gray-900">4</p>
+                <p className="text-2xl font-semibold text-gray-900">{enrolledCourses.length}</p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="flex items-center gap-3 mb-2">
@@ -64,7 +67,7 @@ export default function page() {
                     Completed Courses
                   </span>
                 </div>
-                <p className="text-2xl font-semibold text-gray-900">12</p>
+                <p className="text-2xl font-semibold text-gray-900">{`${completed} / ${total}`}</p>
               </div>
             </div>
           </div>

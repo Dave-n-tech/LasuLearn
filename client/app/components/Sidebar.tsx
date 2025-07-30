@@ -25,8 +25,6 @@ export default function Sidebar({
   const {setUser, logout} = useAppContext()
   const router = useRouter()
 
-  console.log("Sidebar isSidebarOpen:", isSidebarOpen);
-
   const handleLogout = async () => {
     try {
       await logout();

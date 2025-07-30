@@ -28,6 +28,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState<string | null>(null)
   const refreshCookie = getCookie("refresh_token");
 
   const StudentSideBarLinks: SidebarLink[] = [
@@ -110,6 +111,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       );
       const { access_token, user } = refreshResponse.data;
 
+      setToken(access_token);
       localStorage.setItem("authToken", access_token);
       localStorage.setItem("authData", JSON.stringify(user));
       setUser(user);
@@ -122,6 +124,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       // Clear all client-side tokens if refresh fails
       localStorage.removeItem("authToken");
+      setToken(null)
       localStorage.removeItem("authData");
       setUser(null);
       return null;
@@ -138,6 +141,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const { access_token, user } = response.data;
       setUser(user);
       localStorage.setItem("authToken", access_token);
+      setToken(access_token);
       localStorage.setItem("authData", JSON.stringify(user));
       console.log("User logged in:", user);
     } catch (error: any) {
@@ -173,6 +177,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setUser(user);
 
       localStorage.setItem("authToken", access_token);
+      setToken(access_token);
       localStorage.setItem("authData", JSON.stringify(user));
       console.log("user registered: ", user);
     } catch (error: any) {
@@ -198,6 +203,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       );
       setUser(null);
       localStorage.removeItem("authToken");
+      setToken(null);
       localStorage.removeItem("authData");
       console.log("User logged out.");
     } catch (error: any) {
@@ -248,6 +254,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
               error
             );
             // Fall through to refresh token logic if access token is invalid
+            localStorage.removeItem("authData");
+            localStorage.removeItem("authToken");
+            setUser(null)
           }
         }
 
@@ -279,6 +288,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         setUser,
+        token,
         error,
         setError,
         loading,

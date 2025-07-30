@@ -9,7 +9,7 @@ import { uploadToCloudinary } from "../../utils/cloudinary";
 import axios from "axios";
 
 // get all courses available for students
-export const getAllCourses = async (req: Request, res: Response) => {
+export const getAllCourses = async (req: JwtRequest, res: Response) => {
   try {
     const courses = await prisma.course.findMany();
 
@@ -66,6 +66,20 @@ export const getCourseDetails = async (req: JwtRequest, res: Response) => {
                 wasPresent: true,
               },
             },
+            quizSubmissions: {
+              where: {
+                userId: studentId,
+              },
+              select: {
+                id: true,
+                quizId: true,
+                lectureId: true,
+                userId: true,
+                selectedAnswer: true,
+                submittedAt: true,
+                isCorrect: true,
+              },
+            }
           },
           orderBy: {
             createdAt: "asc",
@@ -154,6 +168,16 @@ export const getEnrolledCourses = async (req: JwtRequest, res: Response) => {
                     skippedTime: true,
                     completedAt: true,
                   },
+                },
+                quizSubmissions: {
+                  where: {
+                    userId: studentId,
+                  },
+                  select: {
+                    id: true,
+                    quizId: true,
+                    lectureId: true,
+                  }
                 }
               },
               orderBy: {
