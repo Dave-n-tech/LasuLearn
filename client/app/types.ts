@@ -43,6 +43,7 @@ export type AppContextType = {
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   refreshAccessToken: () => void;
   login: (formData: LoginFormData) => void;
   register: (formData: RegisterFormData) => void;
@@ -59,6 +60,21 @@ export interface Notification {
   message: string;
   createdAt: Date;
   isRead: boolean;
+}
+
+export interface Course {
+  id: string;
+  title: string;
+  code: string;
+  description: string | null;
+  createdAt: Date;
+  lecturerId: number;
+  lecturer: CourseLecturer;
+  enrollments: {
+    id: number;
+    userId: number;
+    courseId: number;
+  }[];
 }
 
 export interface CourseLecture {
@@ -80,7 +96,7 @@ export interface CourseLectureProgress {
   title: string;
   videoUrl: string;
   duration: number;
-  createdAt: string;
+  createdAt: Date;
   attendanceLogs: {
     engagementScore: number;
     markedAt: string;
@@ -88,10 +104,16 @@ export interface CourseLectureProgress {
   }[];
   progresses: {
     id: string;
+    userId: string;
     watched: boolean;
     watchTime: number;
     skippedTime: number;
     completedAt: string | null;
+  }[];
+  quizzes: {
+    id: number;
+    question: string;
+    options: string;
   }[];
   quizSubmissions: {
     id: string;
@@ -106,7 +128,39 @@ export interface CourseLecturer {
   lastName: string;
 }
 
+export interface DiscussionPost {
+  id: string;
+  userId?: string;
+  courseId: string;
+  content: string;
+  createdAt: Date;
+  updatedAt?: Date;
+  user?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+  };
+  replies?: DiscussionReply[];
+}
+
+export interface DiscussionReply {
+  id: string;
+  postId?: string;
+  userId?: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface EnrolledCourse {
+  id: string;
+  userId: string;
+  courseId: string;
+  enrolledAt: Date;
+  user: {
+    id: string;
+  };
   course: {
     id: string;
     title: string;
@@ -114,5 +168,6 @@ export interface EnrolledCourse {
     code: string;
     lecturer: CourseLecturer;
     lectures: CourseLectureProgress[];
+    discussionPosts: DiscussionPost[];
   };
 }

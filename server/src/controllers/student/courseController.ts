@@ -11,7 +11,24 @@ import axios from "axios";
 // get all courses available for students
 export const getAllCourses = async (req: JwtRequest, res: Response) => {
   try {
-    const courses = await prisma.course.findMany();
+    const courses = await prisma.course.findMany({
+      include: {
+        lecturer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          }
+        },
+        enrollments: {
+          select: {
+            id: true,
+            courseId: true,
+            userId: true
+          }
+        }
+      }
+    });
 
     if (!courses) {
       res.status(404).json({ message: "No courses available" });
@@ -127,6 +144,11 @@ export const getEnrolledCourses = async (req: JwtRequest, res: Response) => {
         userId: studentId,
       },
       include: {
+        user: {
+          select: {
+            id: true,
+          }
+        },
         course: {
           select: {
             id: true,
@@ -163,11 +185,22 @@ export const getEnrolledCourses = async (req: JwtRequest, res: Response) => {
                   },
                   select: {
                     id: true,
+                    userId: true,
                     watched: true,
                     watchTime: true,
                     skippedTime: true,
                     completedAt: true,
                   },
+                  orderBy: {
+                    completedAt: "desc"
+                  }
+                },
+                quizzes: {
+                  select: {
+                    id: true,
+                    question: true,
+                    options: true,
+                  }
                 },
                 quizSubmissions: {
                   where: {
@@ -183,6 +216,34 @@ export const getEnrolledCourses = async (req: JwtRequest, res: Response) => {
               orderBy: {
                 createdAt: "asc",
               },
+            },
+            discussionPosts: {
+              select: {
+                id: true,
+                userId: true,
+                courseId: true,
+                content: true,
+                createdAt: true,
+                updatedAt: true,
+                user: {
+                  select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    role: true
+                  }
+                },
+                replies: {
+                  select: {
+                    id: true,
+                    postId: true,
+                    userId: true,
+                    content: true,
+                    createdAt: true,
+                    updatedAt: true
+                  }
+                }
+              }
             }
           },
         },

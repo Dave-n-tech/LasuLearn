@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { UserIcon, LogOutIcon, UserCircleIcon } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { redirect, useRouter } from "next/navigation";
+import Link from "next/link";
 
 // interface UserMenuProps {
 //   onProfileClick: () => void;
@@ -52,7 +53,8 @@ const UserMenu = () => {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-          <button
+          <Link
+            href={`/dashboard/${user?.role.toLowerCase()}/profile`}
             onClick={() => {
               setIsOpen(false);
             }}
@@ -60,10 +62,10 @@ const UserMenu = () => {
           >
             <UserCircleIcon size={16} className="mr-2" />
             Profile
-          </button>
+          </Link>
           <button
             onClick={handleLogout}
-            className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            className="cursor-pointer flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
           >
             <LogOutIcon size={16} className="mr-2" />
             Log out

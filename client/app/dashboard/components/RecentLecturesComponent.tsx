@@ -20,6 +20,7 @@ export default function RecentLecturesComponent() {
       return {
         ...lecture,
         courseTitle: enrolled.course.title,
+        courseCode: enrolled.course.code,
         completedAt: userProgress?.completedAt || null,
         percentageCompleted: percentageCompleted,
       };
@@ -52,6 +53,7 @@ export default function RecentLecturesComponent() {
             lectureId={lecture.id}
             title={lecture.title}
             courseTitle={lecture.courseTitle}
+            courseCode={lecture.courseCode}
             duration={lecture.duration}
             percentageCompleted={lecture.percentageCompleted}
           />

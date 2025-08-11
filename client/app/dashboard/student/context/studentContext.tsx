@@ -1,26 +1,24 @@
 "use client";
 import axios from "@/app/api/axios";
 import { useAppContext } from "@/app/context/AppContext";
-import { EnrolledCourse, Notification, User } from "@/app/types";
+import { Course, EnrolledCourse, Notification, User } from "@/app/types";
+import { get } from "http";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface StudentDashboardContextType {
+  error: string | null;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
   loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  message: string | null;
+  setMessage: React.Dispatch<React.SetStateAction<string | null>>;
   user?: User | null;
   notifications: Notification[];
   enrolledCourses: EnrolledCourse[];
+  allCourses: Course[];
   getCourseDetails: (courseId: string) => Promise<any>;
+  setShouldRefetch: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
-// data to return
-/**
- * Enrolled courses: /api/students/courses/enrollments
- * total hours watched
- * completed quizzes
- * recent lectures with progress
- * courses with progress on lectures watched
- * Courses available to enroll in
- */
 
 const StudentDashboardContext = createContext<
   StudentDashboardContextType | undefined
@@ -31,9 +29,14 @@ export function StudentDashboardProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAppContext();
+  const { user, loading, setLoading } = useAppContext();
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [allCourses, setAllCourses] = useState<Course[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [shouldRefetch, setShouldRefetch] = useState<boolean>(false);
+  const [students, setStudents] = useState<User[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -56,7 +59,7 @@ export function StudentDashboardProvider({
       });
       const courses = res.data;
 
-      console.log("all available courses: ", courses);
+      setAllCourses(courses);
     }
 
     async function getNotifications() {
@@ -66,15 +69,13 @@ export function StudentDashboardProvider({
         },
       });
       const notifications = res.data.notifications;
-      setNotifications(notifications)
-
-      console.log("Notifications: ", notifications);
+      setNotifications(notifications);
     }
 
     fetchStudentCourseData();
     getAllAvailableCourses();
     getNotifications();
-  }, []);
+  }, [shouldRefetch]);
 
   const getCourseDetails = async (courseId: string) => {
     const token = localStorage.getItem("authToken");
@@ -91,7 +92,20 @@ export function StudentDashboardProvider({
 
   return (
     <StudentDashboardContext.Provider
-      value={{ loading, user, notifications, enrolledCourses, getCourseDetails }}
+      value={{
+        error,
+        setError,
+        loading,
+        setLoading,
+        message,
+        setMessage,
+        user,
+        notifications,
+        enrolledCourses,
+        allCourses,
+        getCourseDetails,
+        setShouldRefetch,
+      }}
     >
       {children}
     </StudentDashboardContext.Provider>

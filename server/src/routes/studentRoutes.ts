@@ -7,7 +7,7 @@ import { getLectureProgress, getAllLectureProgressForStudent, markAttendance, su
 const router = express.Router();
 
 // students
-router.get("/", getAllStudents)
+router.get("/all", getAllStudents)
 router.get("/:id", verifyToken([Role.STUDENT]), getStudentById)
 router.patch("/:id", verifyToken([Role.STUDENT]), updateStudentById)
 

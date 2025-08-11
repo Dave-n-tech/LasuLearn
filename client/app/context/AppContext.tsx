@@ -52,11 +52,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       label: "Add Courses",
       href: "/dashboard/student/add-courses",
     },
-    {
-      icon: CalendarIcon,
-      label: "Schedule",
-      href: "/dashboard/student/schedule",
-    },
+    // {
+    //   icon: CalendarIcon,
+    //   label: "Schedule",
+    //   href: "/dashboard/student/schedule",
+    // },
     {
       icon: MessageSquareIcon,
       label: "Discussions",
@@ -292,6 +292,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         error,
         setError,
         loading,
+        setLoading,
         refreshAccessToken,
         login,
         register,

@@ -6,6 +6,7 @@ type LectureCardProps = {
   lectureId: string;
   title: string;
   courseTitle: string;
+  courseCode: string;
   duration: number;
   percentageCompleted: number;
 };
@@ -14,9 +15,11 @@ export default function RecentLectureCard({
   lectureId,
   title,
   courseTitle,
+  courseCode,
   duration,
   percentageCompleted,
 }: LectureCardProps) {
+  
   return (
     <Link href={`/dashboard/student/lectures/${lectureId}`}>
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-lg hover:bg-gray-50">
@@ -27,7 +30,7 @@ export default function RecentLectureCard({
           <div className="flex-1">
             <h3 className="font-medium text-gray-900">{title.toUpperCase()}</h3>
             <p className="text-sm text-gray-600">
-              {`${courseTitle} • ${Math.round(duration / 60)} mins`}
+              {`${courseCode} - ${courseTitle} • ${Math.round(duration / 60)} mins`}
             </p>
           </div>
         </div>
