@@ -47,13 +47,9 @@ export default function page() {
         }
       );
 
-      setNotEnrolledCourses((prev) =>
-        prev.filter((course) => course.id !== courseId)
-      );
-
       setShouldRefetch((prev) => !prev);
       setMessage("You have been successfully enrolled in the course!");
-      return res;
+      // return res;
     } catch (error: any) {
       console.error("An error occurred while enrolling in the course", error);
       setError(

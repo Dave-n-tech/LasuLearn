@@ -14,7 +14,9 @@ interface StudentDashboardContextType {
   setMessage: React.Dispatch<React.SetStateAction<string | null>>;
   user?: User | null;
   notifications: Notification[];
+  setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
   enrolledCourses: EnrolledCourse[];
+  setEnrolledCourses: React.Dispatch<React.SetStateAction<EnrolledCourse[]>>;
   allCourses: Course[];
   getCourseDetails: (courseId: string) => Promise<any>;
   setShouldRefetch: React.Dispatch<React.SetStateAction<boolean>>;
@@ -36,45 +38,34 @@ export function StudentDashboardProvider({
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [shouldRefetch, setShouldRefetch] = useState<boolean>(false);
-  const [students, setStudents] = useState<User[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
 
-    async function fetchStudentCourseData() {
-      const res = await axios.get("/students/courses/enrollments", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const enrolledCourses = res.data;
-      setEnrolledCourses(enrolledCourses);
+    async function fetchData() {
+      try {
+        const [enrolledRes, allCoursesRes, notificationsRes] =
+          await Promise.all([
+            axios.get("/students/courses/enrollments", {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.get("/students/courses/all", {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.get("/notifications", {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+          ]);
+
+        setEnrolledCourses(enrolledRes.data);
+        setAllCourses(allCoursesRes.data);
+        setNotifications(notificationsRes.data.notifications);
+      } catch (error) {
+        console.error("Error fetching student data:", error);
+      }
     }
 
-    async function getAllAvailableCourses() {
-      const res = await axios.get("/students/courses/all", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const courses = res.data;
-
-      setAllCourses(courses);
-    }
-
-    async function getNotifications() {
-      const res = await axios.get("/notifications", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const notifications = res.data.notifications;
-      setNotifications(notifications);
-    }
-
-    fetchStudentCourseData();
-    getAllAvailableCourses();
-    getNotifications();
+    fetchData();
   }, [shouldRefetch]);
 
   const getCourseDetails = async (courseId: string) => {
@@ -101,7 +92,9 @@ export function StudentDashboardProvider({
         setMessage,
         user,
         notifications,
+        setNotifications,
         enrolledCourses,
+        setEnrolledCourses,
         allCourses,
         getCourseDetails,
         setShouldRefetch,

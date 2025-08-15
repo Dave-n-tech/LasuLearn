@@ -1,12 +1,19 @@
-'use client';
-import React from 'react'
-import { UserIcon, MailIcon, PhoneIcon, BookOpenIcon, CheckCircleIcon } from 'lucide-react';
-import { useStudentDashboard } from '../context/studentContext';
-import { getLectureCompletionStats } from '@/app/helpers';
+"use client";
+import React from "react";
+import {
+  UserIcon,
+  MailIcon,
+  PhoneIcon,
+  BookOpenIcon,
+  CheckCircleIcon,
+} from "lucide-react";
+import { useStudentDashboard } from "../context/studentContext";
+import { getLectureCompletionStats } from "@/app/helpers";
+import Link from "next/link";
 
 export default function page() {
-  const { user, enrolledCourses } = useStudentDashboard()
-  const userName = `${user?.firstName} ${user?.lastName}`
+  const { user, enrolledCourses } = useStudentDashboard();
+  const userName = `${user?.firstName} ${user?.lastName}`;
 
   const { total, completed } = getLectureCompletionStats(enrolledCourses);
 
@@ -25,9 +32,11 @@ export default function page() {
               </h2>
               <p className="text-sm text-gray-600">Computer Science • Year 3</p>
             </div>
-            <button className="ml-auto px-4 py-2 text-sm text-blue-600 hover:text-blue-700 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
-              Edit Profile
-            </button>
+            <Link href={"/dashboard/edit-profile"} className="ml-auto px-4 py-2 text-sm text-blue-600 hover:text-blue-700 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+              <button >
+                Edit Profile
+              </button>
+            </Link>
           </div>
         </div>
         <div className="p-6 space-y-6">
@@ -58,7 +67,9 @@ export default function page() {
                     Current Courses
                   </span>
                 </div>
-                <p className="text-2xl font-semibold text-gray-900">{enrolledCourses.length}</p>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {enrolledCourses.length}
+                </p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="flex items-center gap-3 mb-2">
@@ -74,5 +85,5 @@ export default function page() {
         </div>
       </div>
     </div>
-  )
+  );
 }

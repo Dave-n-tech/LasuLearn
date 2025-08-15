@@ -71,7 +71,11 @@ export const updateStudentById = async (req: Request, res: Response) => {
 
     res.json({
       message: "student updated successfully",
-      studentId: student.id,
+      updatedStudent: {
+        firstName: student.firstName,
+        lastName: student.lastName,
+        email: student.email,
+      },
     });
   } catch (error) {
     console.error("An error occurred", error);

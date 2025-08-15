@@ -87,7 +87,7 @@ export default function DashboardLayoutComponent({ children }: { children: React
             </div>
             <div className="flex items-center gap-4">
               <Link
-                href={`/dashboard/${user?.role.toLowerCase()}/notifications`}
+                href={`/dashboard/notifications`}
                 className="text-gray-500 hover:text-gray-700 relative"
               >
                 <BellIcon className="w-6 h-6" />
@@ -96,7 +96,7 @@ export default function DashboardLayoutComponent({ children }: { children: React
                 </span>
               </Link>
               <Link
-                href={`/dashboard/${user?.role.toLowerCase()}/profile`}
+                href={`/dashboard/${user?.role.toLowerCase() || 'guest'}/profile`}
                 className="text-gray-500 hover:text-gray-700"
               >
                 <UserIcon className="w-6 h-6" />

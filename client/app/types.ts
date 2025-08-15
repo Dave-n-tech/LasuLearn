@@ -5,7 +5,6 @@ export type User = {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
   role: Role;
   matricNo?: string;
 };
@@ -38,7 +37,7 @@ export type LoginFormData = {
 
 export type AppContextType = {
   user: User | null;
-  setUser: (user: User | null) => void;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>
   token: string | null;
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
@@ -58,8 +57,8 @@ export interface Notification {
   userId: string;
   title: string;
   message: string;
-  createdAt: Date;
   isRead: boolean;
+  createdAt: Date;
 }
 
 export interface Course {
@@ -75,6 +74,8 @@ export interface Course {
     userId: number;
     courseId: number;
   }[];
+  lectures: CourseLectureProgress[];
+  discussionPosts: DiscussionPost[];
 }
 
 export interface CourseLecture {
@@ -150,7 +151,13 @@ export interface DiscussionReply {
   userId?: string;
   content: string;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
+  user?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+  };
 }
 
 export interface EnrolledCourse {
@@ -161,13 +168,5 @@ export interface EnrolledCourse {
   user: {
     id: string;
   };
-  course: {
-    id: string;
-    title: string;
-    description: string;
-    code: string;
-    lecturer: CourseLecturer;
-    lectures: CourseLectureProgress[];
-    discussionPosts: DiscussionPost[];
-  };
+  course: Course;
 }

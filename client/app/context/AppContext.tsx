@@ -60,7 +60,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     {
       icon: MessageSquareIcon,
       label: "Discussions",
-      href: "/dashboard/student/discussions",
+      href: "/dashboard/discussions",
     },
   ];
   const LecturerSideBarLinks: SidebarLink[] = [
@@ -92,7 +92,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     {
       icon: MessageSquareIcon,
       label: "Discussions",
-      href: "/dashboard/lecturer/discussions",
+      href: "/dashboard/discussions",
     },
   ];
 

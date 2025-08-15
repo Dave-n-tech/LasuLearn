@@ -18,7 +18,7 @@ export const getUserNotifications = async (req: JwtRequest, res: Response) => {
         userId,
       },
       orderBy: {
-        creaatedAt: "desc",
+        createdAt: "desc",
       },
     });
 

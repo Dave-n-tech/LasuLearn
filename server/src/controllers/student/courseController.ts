@@ -240,7 +240,15 @@ export const getEnrolledCourses = async (req: JwtRequest, res: Response) => {
                     userId: true,
                     content: true,
                     createdAt: true,
-                    updatedAt: true
+                    updatedAt: true,
+                    user: {
+                      select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                        role: true
+                      }
+                    }
                   }
                 }
               }

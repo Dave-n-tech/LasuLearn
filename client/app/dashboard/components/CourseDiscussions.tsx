@@ -10,7 +10,7 @@ export default function CourseDiscussions() {
   // get number of replies for each discussion post
   const discusionReplies = enrolledCourses.map((enrolled) => {
     return enrolled.course.discussionPosts.reduce((acc, post) => {
-      return acc + post.replies.length;
+      return acc + (post.replies ?? []).length;
     }, 0);
   });
 
@@ -24,9 +24,9 @@ export default function CourseDiscussions() {
               Course Discussions
             </h2>
           </div>
-          <button className="text-sm text-blue-600 hover:text-blue-700">
+          {/* <button className="text-sm text-blue-600 hover:text-blue-700">
             Start New Discussion
-          </button>
+          </button> */}
         </div>
       </div>
       <div className="p-6">
