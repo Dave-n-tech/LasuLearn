@@ -76,6 +76,7 @@ model LectureProgress {
   watched       Boolean   @default(false)
   watchTime     Int       @default(0)
   skippedTime   Int       @default(0)
+  rewatchTime   Int       @default(0)
   playbackSpeed Float     @default(1.0)
   completedAt   DateTime?
 

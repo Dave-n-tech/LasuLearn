@@ -109,7 +109,7 @@ export interface CourseLectureProgress {
     watched: boolean;
     watchTime: number;
     skippedTime: number;
-    completedAt: string | null;
+    completedAt: Date;
   }[];
   quizzes: {
     id: number;

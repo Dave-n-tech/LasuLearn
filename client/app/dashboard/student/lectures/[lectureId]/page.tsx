@@ -1,15 +1,11 @@
+'use client'
 import LectureViewer from "@/app/dashboard/components/LectureViewer";
 import { HomeIcon, MoveLeft } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
-type Props = {
-  params: {
-    lectureId: string;
-  };
-};
-
-export default async function page({ params }: Props) {
-  const { lectureId } = params;
+export default function page() {
+  const { lectureId } = useParams<{ lectureId: string }>();
 
   // figure out a way to redirect the user back to the route they're coming from
 

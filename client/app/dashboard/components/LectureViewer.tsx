@@ -14,22 +14,22 @@ export default function LectureViewer({ lectureId }: Props) {
 
   useEffect(() => {
     const fetchLecture = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("Access token not found");
+      
       try {
-        const token = localStorage.getItem("authToken");
-        if (!token) throw new Error("Access token not found");
-
         const res = await axios.get(`/students/lectures/${lectureId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        const data = res.data
+        const data = res.data;
         setLecture(data.lecture);
         // console.log("lecture data: ", data.lecture)
       } catch (err: any) {
         setError(err.message || "An error occurred");
-        console.error("Error getting lecture: ", error)
+        console.error("Error getting lecture: ", error);
       }
     };
 
@@ -42,7 +42,7 @@ export default function LectureViewer({ lectureId }: Props) {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">{lecture.title}</h1>
-      <VideoPlayer src={lecture.videoUrl} />
+      <VideoPlayer src={lecture.videoUrl} lecture={lecture} />
     </div>
   );
 }

@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useStudentDashboard } from "../context/studentContext";
 import CourseSection from "../../components/CourseSection";
 
-type Filter = "all" | "in-progress" | "completed" | "not-started";
 
 export default function page() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -16,7 +15,6 @@ export default function page() {
       [courseId]: !prev[courseId],
     }));
   };
-
 
   return (
     <div className="space-y-8">

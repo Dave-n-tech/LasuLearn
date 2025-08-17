@@ -4,7 +4,14 @@ import prisma from "../../utils/prismaClient";
 
 export const updateLectureProgress = async (req: JwtRequest, res: Response) => {
   const lectureId = parseInt(req.params.lectureId);
-  const { watched, watchTime, skippedTime, playbackSpeed } = req.body;
+  const {
+    watched,
+    watchTime,
+    skippedTime,
+    rewatchTime,
+    playbackSpeed,
+    videoDuration,
+  } = req.body;
   const studentId = req.user?.userId;
 
   if (!studentId || !lectureId) {
@@ -21,16 +28,26 @@ export const updateLectureProgress = async (req: JwtRequest, res: Response) => {
     });
 
     if (existingProgress) {
+      let finalWatchTime = existingProgress.watchTime;
+
+      if (existingProgress.watchTime < videoDuration) {
+        finalWatchTime = Math.min(
+          existingProgress.watchTime + watchTime,
+          videoDuration
+        );
+      }
+
       const updatedProgress = await prisma.lectureProgress.update({
         where: {
           id: existingProgress.id,
         },
         data: {
-          watched,
-          watchTime,
-          skippedTime,
-          playbackSpeed,
-          completedAt: watched ? new Date() : null,
+          watched: existingProgress.watched || watched,
+          watchTime: finalWatchTime,
+          skippedTime: existingProgress.skippedTime + skippedTime,
+          rewatchTime: existingProgress.rewatchTime + rewatchTime,
+          playbackSpeed: (existingProgress.playbackSpeed + playbackSpeed) / 2,
+          completedAt: watched ? new Date() : existingProgress.completedAt,
         },
       });
 
@@ -46,6 +63,7 @@ export const updateLectureProgress = async (req: JwtRequest, res: Response) => {
           watched,
           watchTime,
           skippedTime,
+          rewatchTime,
           playbackSpeed,
           completedAt: watched ? new Date() : null,
         },
@@ -294,14 +312,13 @@ export const getLectureById = async (req: JwtRequest, res: Response) => {
       },
     });
 
-    if(!lecture){
+    if (!lecture) {
       res.status(404).json({
-        message: "Lecture not found."
-      })
+        message: "Lecture not found.",
+      });
     }
 
-    res.status(200).json({ lecture: lecture })
-
+    res.status(200).json({ lecture: lecture });
   } catch (error) {
     console.error("Error fetching lecture", error);
     res.status(500).json({ message: "Internal server error" });

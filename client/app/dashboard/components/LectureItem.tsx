@@ -1,4 +1,5 @@
 import { CourseLectureProgress } from "@/app/types";
+import { formatDistanceToNow } from "date-fns";
 import { PlayIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -9,10 +10,10 @@ type Props = {
 
 export default function LectureItem({ lecture, userId }: Props) {
   const progress = lecture.progresses.find((p) => p.userId === userId);
-  const percent = progress
+  let percent = progress
     ? Math.round((progress.watchTime / lecture.duration) * 100)
     : 0;
-
+  
   return (
     <Link href={`/dashboard/student/lectures/${lecture.id}`}>
       <div className="p-4 hover:bg-gray-50">
@@ -24,7 +25,14 @@ export default function LectureItem({ lecture, userId }: Props) {
             <div>
               <h4 className="font-medium text-gray-900">{lecture.title}</h4>
               <p className="text-sm text-gray-600">
-                Duration: {Math.round(lecture.duration / 60)} mins
+                Duration:{" "}
+                {lecture.duration < 60
+                  ? `${lecture.duration} sec${
+                      lecture.duration === 1 ? "" : "s"
+                    }`
+                  : `${Math.round(lecture.duration / 60)} min${
+                      Math.round(lecture.duration / 60) === 1 ? "" : "s"
+                    }`}
               </p>
             </div>
           </div>
@@ -33,7 +41,7 @@ export default function LectureItem({ lecture, userId }: Props) {
               <div className="text-sm text-gray-600 mb-1">
                 {percent === 0
                   ? "Not started"
-                  : percent === 100
+                  : percent === 100 && progress?.watched
                   ? "Completed"
                   : `${percent}% completed`}
               </div>
@@ -45,8 +53,15 @@ export default function LectureItem({ lecture, userId }: Props) {
                   />
                 </div>
                 <span className="text-xs text-gray-500">
-                  {/* Replace with actual lastWatched data if available */}
-                  Last viewed: N/A
+                  {progress?.watched &&
+                    `Completed:  
+                  ${
+                    progress && progress.completedAt !== null
+                      ? formatDistanceToNow(new Date(progress.completedAt), {
+                          addSuffix: true,
+                        })
+                      : "Not completed"
+                  }`}
                 </span>
               </div>
             </div>
