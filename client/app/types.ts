@@ -37,7 +37,7 @@ export type LoginFormData = {
 
 export type AppContextType = {
   user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   token: string | null;
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
@@ -87,6 +87,7 @@ export interface CourseLecture {
   createdAt: Date;
   quizzes: {
     id: number;
+    lectureId: string;
     question: string;
     options: string;
   }[];
@@ -113,6 +114,7 @@ export interface CourseLectureProgress {
   }[];
   quizzes: {
     id: number;
+    lectureId: string;
     question: string;
     options: string;
   }[];
@@ -169,4 +171,12 @@ export interface EnrolledCourse {
     id: string;
   };
   course: Course;
+}
+
+export interface QuizQuestion {
+  id: number;
+  lectureId: string;
+  question: string;
+  options: string[];
+  // correctAnswer: string;
 }

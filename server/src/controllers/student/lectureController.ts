@@ -29,13 +29,26 @@ export const updateLectureProgress = async (req: JwtRequest, res: Response) => {
 
     if (existingProgress) {
       let finalWatchTime = existingProgress.watchTime;
-
-      if (existingProgress.watchTime < videoDuration) {
+      if (watchTime > 0 && existingProgress.watchTime < videoDuration) {
         finalWatchTime = Math.min(
           existingProgress.watchTime + watchTime,
           videoDuration
         );
       }
+
+      const finalSkippedTime =
+        skippedTime > 0
+          ? existingProgress.skippedTime + skippedTime
+          : existingProgress.skippedTime;
+
+      const finalRewatchTime =
+        rewatchTime > 0
+          ? existingProgress.rewatchTime + rewatchTime
+          : existingProgress.rewatchTime;
+
+      const finalPlaybackSpeed = playbackSpeed
+        ? (existingProgress.playbackSpeed + playbackSpeed) / 2
+        : existingProgress.playbackSpeed;
 
       const updatedProgress = await prisma.lectureProgress.update({
         where: {
@@ -44,9 +57,9 @@ export const updateLectureProgress = async (req: JwtRequest, res: Response) => {
         data: {
           watched: existingProgress.watched || watched,
           watchTime: finalWatchTime,
-          skippedTime: existingProgress.skippedTime + skippedTime,
-          rewatchTime: existingProgress.rewatchTime + rewatchTime,
-          playbackSpeed: (existingProgress.playbackSpeed + playbackSpeed) / 2,
+          skippedTime: finalSkippedTime,
+          rewatchTime: finalRewatchTime,
+          playbackSpeed: finalPlaybackSpeed,
           completedAt: watched ? new Date() : existingProgress.completedAt,
         },
       });
@@ -61,10 +74,10 @@ export const updateLectureProgress = async (req: JwtRequest, res: Response) => {
           userId: studentId,
           lectureId,
           watched,
-          watchTime,
-          skippedTime,
-          rewatchTime,
-          playbackSpeed,
+          watchTime: watchTime > 0 ? watchTime : 0,
+          skippedTime: skippedTime > 0 ? skippedTime : 0,
+          rewatchTime: rewatchTime > 0 ? rewatchTime : 0,
+          playbackSpeed: playbackSpeed || 1,
           completedAt: watched ? new Date() : null,
         },
       });
@@ -85,7 +98,7 @@ export const submitQuizResponse = async (req: JwtRequest, res: Response) => {
   const studentId = req.user?.userId;
   const { responses } = req.body;
 
-  if (!responses || Array.isArray(responses) || responses.length === 0) {
+  if (!responses || !Array.isArray(responses) || responses.length === 0) {
     res.status(400).json({
       message: "No quiz responses provided",
     });
@@ -118,7 +131,7 @@ export const submitQuizResponse = async (req: JwtRequest, res: Response) => {
         },
       });
 
-      if (existingSubmission) {
+      if (existingSubmission && existingSubmission.isCorrect) {
         results.push({
           quizId,
           status: "skipped",
@@ -160,6 +173,7 @@ export const submitQuizResponse = async (req: JwtRequest, res: Response) => {
 export const markAttendance = async (req: JwtRequest, res: Response) => {
   const studentId = req.user?.userId;
   const lectureId = parseInt(req.params.lectureId);
+  // const { lectureId } = req.body;
 
   if (!lectureId || isNaN(lectureId)) {
     res.status(400).json({ message: "Invalid lecture ID" });
@@ -170,6 +184,25 @@ export const markAttendance = async (req: JwtRequest, res: Response) => {
     const lecture = await prisma.lecture.findUnique({
       where: {
         id: lectureId,
+      },
+      include: {
+        quizzes: {
+          select: {
+            id: true,
+          },
+        },
+        quizSubmissions: {
+          where: {
+            userId: studentId,
+          },
+          select: {
+            id: true,
+            quizId: true,
+            isCorrect: true,
+            userId: true,
+            selectedAnswer: true,
+          },
+        },
       },
     });
 
@@ -192,19 +225,36 @@ export const markAttendance = async (req: JwtRequest, res: Response) => {
       return;
     }
 
+    const totalQuizzes = lecture.quizzes.length;
+    let quizPassed = true; // true by default if no quizzes
+
+    const correctAnswers = lecture.quizSubmissions.filter(
+      (s) => s.isCorrect
+    ).length;
+
+    if (totalQuizzes > 0) {
+      quizPassed = correctAnswers >= Math.ceil(totalQuizzes / 2);
+    }
+
     const totalDuration = lecture.duration;
     const watchedPercent = (progress.watchTime / totalDuration) * 100;
     const skippedPercent = (progress.skippedTime / totalDuration) * 100;
     const playbackSpeed = progress.playbackSpeed;
+    const quizPercent = totalQuizzes > 0 ? correctAnswers / totalQuizzes : 1;
 
     const meetsAttendanceCriteria =
-      watchedPercent >= 80 && skippedPercent <= 10 && playbackSpeed <= 1.5;
-    const engagementScore = Math.round(watchedPercent);
+      watchedPercent >= 80 && playbackSpeed <= 1.5 && quizPassed;
+
+    const engagementScore = Math.round(
+      (watchedPercent * 0.85 + quizPercent * 0.15) * 100
+    );
 
     const responsePayload = {
       watchedPercent,
       skippedPercent,
       playbackSpeed,
+      quizPassed,
+      engagementScore,
     };
 
     const existingAttendanceLog = await prisma.attendanceLog.findFirst({
@@ -226,7 +276,10 @@ export const markAttendance = async (req: JwtRequest, res: Response) => {
       });
 
       res.status(200).json({
-        message: "Attendance not marked: Engagement too low",
+        message: quizPassed
+          ? "Attendance not marked: Engagement too low"
+          : `Attendance not marked: Quiz score is ${correctAnswers} / ${totalQuizzes}`,
+        success: false,
         ...responsePayload,
       });
       return;
@@ -245,6 +298,7 @@ export const markAttendance = async (req: JwtRequest, res: Response) => {
 
       res.status(200).json({
         message: "Attendance marked successfully",
+        success: true,
         ...responsePayload,
       });
       return;
@@ -266,17 +320,21 @@ export const markAttendance = async (req: JwtRequest, res: Response) => {
 
         res.status(200).json({
           message: "Attendance marked successfully",
+          success: true,
           ...responsePayload,
         });
       } else {
-        res.status(409).json({ message: "Attendance already marked" });
+        res.status(200).json({ message: "Attendance already marked" });
       }
       return;
     }
 
     // existing log but still doesn't meet attendance criteria
     res.status(200).json({
-      message: "Attendance not marked: Engagement too low",
+      message: quizPassed
+        ? "Attendance not marked: Engagement too low"
+        : `Attendance not marked: Quiz score is ${correctAnswers} / ${totalQuizzes}`,
+      success: false,
       ...responsePayload,
     });
   } catch (error) {
@@ -305,6 +363,7 @@ export const getLectureById = async (req: JwtRequest, res: Response) => {
         quizzes: {
           select: {
             id: true,
+            lectureId: true,
             question: true,
             options: true,
           },
