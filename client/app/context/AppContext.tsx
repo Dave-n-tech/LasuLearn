@@ -11,6 +11,7 @@ import {
 import {
   BarChart3Icon,
   BookOpenIcon,
+  CalendarCheck,
   CalendarIcon,
   HomeIcon,
   MessageSquareIcon,
@@ -61,6 +62,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       icon: MessageSquareIcon,
       label: "Discussions",
       href: "/dashboard/discussions",
+    },
+    {
+      icon: CalendarCheck,
+      label: "Attendance",
+      href: "/dashboard/student/attendance",
     },
   ];
   const LecturerSideBarLinks: SidebarLink[] = [

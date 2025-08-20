@@ -246,7 +246,7 @@ export const markAttendance = async (req: JwtRequest, res: Response) => {
       watchedPercent >= 80 && playbackSpeed <= 1.5 && quizPassed;
 
     const engagementScore = Math.round(
-      (watchedPercent * 0.85 + quizPercent * 0.15) * 100
+      ((progress.watchTime / totalDuration) * 0.85 + quizPercent * 0.15) * 100
     );
 
     const responsePayload = {
@@ -272,6 +272,7 @@ export const markAttendance = async (req: JwtRequest, res: Response) => {
           lectureId,
           engagementScore,
           wasPresent: false,
+          markedAt: new Date(),
         },
       });
 
@@ -293,6 +294,7 @@ export const markAttendance = async (req: JwtRequest, res: Response) => {
           lectureId,
           engagementScore,
           wasPresent: true,
+          markedAt: new Date(),
         },
       });
 
@@ -315,6 +317,7 @@ export const markAttendance = async (req: JwtRequest, res: Response) => {
           data: {
             wasPresent: true,
             engagementScore,
+            markedAt: new Date(),
           },
         });
 

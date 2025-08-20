@@ -74,7 +74,7 @@ export default function QuizModal({
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
-        className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-lg"
+        className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg"
       >
         <h2 className="text-xl font-semibold mb-4">
           Question {currentQuestionIndex + 1} of {questions.length}

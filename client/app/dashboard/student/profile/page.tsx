@@ -31,6 +31,7 @@ export default function page() {
                 {userName}
               </h2>
               <p className="text-sm text-gray-600">Computer Science • Year 3</p>
+              <p className="text-sm text-gray-600">MatricNo • {user?.matricNo}</p>
             </div>
             <Link href={"/dashboard/edit-profile"} className="ml-auto px-4 py-2 text-sm text-blue-600 hover:text-blue-700 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
               <button >

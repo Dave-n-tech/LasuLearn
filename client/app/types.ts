@@ -101,7 +101,7 @@ export interface CourseLectureProgress {
   createdAt: Date;
   attendanceLogs: {
     engagementScore: number;
-    markedAt: string;
+    markedAt: Date;
     wasPresent: boolean;
   }[];
   progresses: {
@@ -122,6 +122,7 @@ export interface CourseLectureProgress {
     id: string;
     quizId: string;
     lectureId: string;
+    isCorrect: boolean;
   }[];
 }
 

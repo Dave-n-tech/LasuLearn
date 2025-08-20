@@ -210,6 +210,7 @@ export const getEnrolledCourses = async (req: JwtRequest, res: Response) => {
                     id: true,
                     quizId: true,
                     lectureId: true,
+                    isCorrect: true
                   }
                 }
               },

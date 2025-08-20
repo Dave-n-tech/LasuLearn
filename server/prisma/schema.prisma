@@ -82,6 +82,8 @@ model LectureProgress {
 
   user    User    @relation(fields: [userId], references: [id])
   lecture Lecture @relation(fields: [lectureId], references: [id])
+
+  @@unique([userId, lectureId])
 }
 
 model AttendanceLog {
@@ -94,6 +96,8 @@ model AttendanceLog {
 
   user    User    @relation(fields: [userId], references: [id])
   lecture Lecture @relation(fields: [lectureId], references: [id])
+
+  @@unique([userId, lectureId])
 }
 
 model Quiz {
@@ -119,6 +123,8 @@ model QuizSubmission {
   user    User    @relation(fields: [userId], references: [id])
   quiz    Quiz    @relation(fields: [quizId], references: [id])
   lecture Lecture @relation(fields: [lectureId], references: [id])
+
+  @@unique([userId, lectureId])
 }
 
 model Notification {

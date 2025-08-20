@@ -22,14 +22,16 @@ export default function page() {
         <h1 className="text-2xl font-bold text-gray-900">My Lectures</h1>
       </div>
 
-      {enrolledCourses.map((enrolled) => (
+      {enrolledCourses.length !== 0 ? (enrolledCourses.map((enrolled) => (
         <CourseSection
           key={enrolled.course.id}
           enrolled={enrolled}
           expanded={!!expanded[enrolled.course.id]}
           onToggle={() => toggleCourse(enrolled.course.id)}
         />
-      ))}
+      ))) : (
+        <p>No lectures yet, register your courses.</p>
+      )}
     </div>
   );
 }

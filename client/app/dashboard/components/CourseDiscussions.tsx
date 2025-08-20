@@ -31,14 +31,18 @@ export default function CourseDiscussions() {
       </div>
       <div className="p-6">
         <div className="space-y-4">
-          {enrolledCourses.map((enrolled, i) => (
-            <DiscussionCard
-              key={enrolled.id}
-              enrolled={enrolled}
-              index={i}
-              replies={discusionReplies}
-            />
-          ))}
+          {enrolledCourses.length !== 0 ? (
+            enrolledCourses.map((enrolled, i) => (
+              <DiscussionCard
+                key={enrolled.id}
+                enrolled={enrolled}
+                index={i}
+                replies={discusionReplies}
+              />
+            ))
+          ) : (
+            <p>No dicussions available</p>
+          )}
         </div>
       </div>
     </div>

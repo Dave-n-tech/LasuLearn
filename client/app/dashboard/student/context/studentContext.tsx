@@ -57,6 +57,7 @@ export function StudentDashboardProvider({
             }),
           ]);
 
+        // console.log("Enrolled courses: ", enrolledRes.data)
         setEnrolledCourses(enrolledRes.data);
         setAllCourses(allCoursesRes.data);
         setNotifications(notificationsRes.data.notifications);
