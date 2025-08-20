@@ -14,9 +14,11 @@ import {
   CalendarCheck,
   CalendarIcon,
   HomeIcon,
+  MessageCircleQuestion,
   MessageSquareIcon,
   PlayIcon,
   PlusCircleIcon,
+  Users,
   UsersIcon,
   VideoIcon,
 } from "lucide-react";
@@ -76,25 +78,35 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       href: "/dashboard/lecturer",
     },
     {
-      icon: UsersIcon,
-      label: "Students",
-      href: "/dashboard/lecturer/students",
+      icon: BookOpenIcon,
+      label: "Courses",
+      href: "/dashboard/lecturer/courses"
     },
     {
       icon: VideoIcon,
-      label: "Content",
+      label: "Lecture Content",
       href: "/dashboard/lecturer/content",
+    },
+    {
+      icon: MessageCircleQuestion,
+      label: "Quizzes",
+      href: "/dashboard/lecturer/quizzes"
+    },
+    {
+      icon: UsersIcon,
+      label: "Students",
+      href: "/dashboard/lecturer/students",
     },
     {
       icon: BarChart3Icon,
       label: "Analytics",
       href: "/dashboard/lecturer/analytics",
     },
-    {
-      icon: CalendarIcon,
-      label: "Schedule",
-      href: "/dashboard/lecturer/schedule",
-    },
+    // {
+    //   icon: CalendarIcon,
+    //   label: "Schedule",
+    //   href: "/dashboard/lecturer/schedule",
+    // },
     {
       icon: MessageSquareIcon,
       label: "Discussions",
