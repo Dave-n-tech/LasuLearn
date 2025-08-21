@@ -179,5 +179,34 @@ export interface QuizQuestion {
   lectureId: string;
   question: string;
   options: string[];
-  // correctAnswer: string;
+  correctAnswer?: string;
+}
+
+export interface LecturerCourse {
+  id: number;
+  createdAt: Date;
+  title: string;
+  code: string;
+  description: string | null;
+  lecturerId: number;
+  lectures: {
+    id: number;
+    courseId: number;
+    createdAt: Date;
+    title: string;
+    videoUrl: string;
+    duration: number;
+    attendanceLogs: {
+      id: number;
+      userId: number;
+      markedAt: Date;
+      engagementScore: number;
+      wasPresent: boolean;
+    }[];
+    quizzes: QuizQuestion[];
+  }[];
+}
+
+export interface LecturerDashboardData {
+  course: LecturerCourse[]
 }

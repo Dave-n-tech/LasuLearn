@@ -3,6 +3,7 @@ import axios from "@/app/api/axios";
 import { useAppContext } from "@/app/context/AppContext";
 import { Course, EnrolledCourse, Notification, User } from "@/app/types";
 import { get } from "http";
+import { usePathname } from "next/navigation";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface StudentDashboardContextType {
@@ -39,6 +40,8 @@ export function StudentDashboardProvider({
   const [message, setMessage] = useState<string | null>(null);
   const [shouldRefetch, setShouldRefetch] = useState<boolean>(false);
 
+  const pathname = usePathname();
+
   useEffect(() => {
     const token = localStorage.getItem("authToken");
 
@@ -66,7 +69,7 @@ export function StudentDashboardProvider({
       }
     }
 
-    fetchData();
+    pathname.includes("/dashboard/student") && fetchData();
   }, [shouldRefetch]);
 
   const getCourseDetails = async (courseId: string) => {

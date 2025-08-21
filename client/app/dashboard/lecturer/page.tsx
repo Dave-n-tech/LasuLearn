@@ -47,8 +47,8 @@ export default function page() {
         <h1 className="text-2xl font-bold text-gray-900">Lecturer Dashboard</h1>
       </div>
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6">
-        <div className="bg-white rounded-xl p-6 shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
+        <div className="bg-white rounded-xl py-6 px-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="bg-blue-100 p-3 rounded-lg">
               <BookOpenIcon className="w-6 h-6 text-blue-600" />
@@ -61,7 +61,7 @@ export default function page() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-6 shadow-sm">
+        <div className="bg-white rounded-xl py-6 px-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="bg-indigo-100 p-3 rounded-lg">
               <PlayIcon className="w-6 h-6 text-indigo-600" />
@@ -74,7 +74,7 @@ export default function page() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-6 shadow-sm">
+        <div className="bg-white rounded-xl py-6 px-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="bg-teal-100 p-3 rounded-lg">
               <UsersIcon className="w-6 h-6 text-teal-600" />
@@ -87,7 +87,7 @@ export default function page() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-6 shadow-sm">
+        <div className="bg-white rounded-xl py-6 px-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="bg-purple-100 p-3 rounded-lg">
               <ActivityIcon className="w-6 h-6 text-purple-600" />
@@ -100,7 +100,7 @@ export default function page() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-6 shadow-sm">
+        <div className="bg-white rounded-xl py-6 px-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="bg-amber-100 p-3 rounded-lg">
               <CheckCircleIcon className="w-6 h-6 text-amber-600" />

@@ -182,6 +182,36 @@ export const getCoursesByLecturerId = async (
       where: {
         lecturerId,
       },
+      include: {
+        lectures: {
+          select: {
+            id: true,
+            courseId: true,
+            title: true,
+            videoUrl: true,
+            createdAt: true,
+            duration: true,
+            quizzes: {
+              select: {
+                id: true,
+                lectureId: true,
+                question: true,
+                options: true,
+                correctAnswer: true,
+              }
+            },
+            attendanceLogs: {
+              select: {
+                id: true,
+                engagementScore: true,
+                wasPresent: true,
+                markedAt: true,
+                userId: true
+              }
+            }
+          }
+        }
+      }
     });
 
     if (courses.length == 0) {

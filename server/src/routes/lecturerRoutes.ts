@@ -57,7 +57,7 @@ router.get(
 
 // Course management:
 router.post("/courses", verifyToken([Role.LECTURER]), createCourse);
-router.get("/courses", verifyToken([Role.LECTURER]), getCoursesByLecturerId);
+router.get("/courses/all", verifyToken([Role.LECTURER]), getCoursesByLecturerId);
 router.get(
   "/courses/:courseId",
   verifyToken([Role.LECTURER]),
