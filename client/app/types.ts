@@ -189,6 +189,12 @@ export interface LecturerCourse {
   code: string;
   description: string | null;
   lecturerId: number;
+  enrollments: {
+    id: number;
+    userId: number;
+    courseId: number;
+    enrolledAt: Date;
+  }[];
   lectures: {
     id: number;
     courseId: number;
@@ -207,6 +213,6 @@ export interface LecturerCourse {
   }[];
 }
 
-export interface LecturerDashboardData {
-  course: LecturerCourse[]
-}
+// export interface LecturerDashboardData {
+//   course: LecturerCourse[];
+// }

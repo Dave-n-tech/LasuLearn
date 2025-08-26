@@ -15,6 +15,7 @@ import Link from 'next/link'
 export default function page() {
   const [searchTerm, setSearchTerm] = useState('')
   const [showDropdown, setShowDropdown] = useState<number | null>(null)
+
   // Mock course data
   const courses = [
     {
@@ -23,7 +24,7 @@ export default function page() {
       description:
         'Modern web development techniques focusing on React, Node.js, and cloud deployment.',
       lectures: 12,
-      students: 45,
+      students: 120,
       created: 'Jan 15, 2024',
       lastUpdated: 'Mar 10, 2024',
       thumbnail:
@@ -105,7 +106,7 @@ export default function page() {
             />
           </div>
           <Link
-            href="/lecturer/courses/new"
+            href="/dashboard/lecturer/courses/new"
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             <PlusIcon className="w-5 h-5" />
@@ -148,13 +149,13 @@ export default function page() {
                     {showDropdown === course.id && (
                       <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
                         <Link
-                          href={`/lecturer/courses/${course.id}`}
+                          href={`/dashboard/lecturer/courses/${course.id}`}
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
                           View Details
                         </Link>
                         <Link
-                          href={`/lecturer/courses/${course.id}/edit`}
+                          href={`/dashboard/lecturer/courses/${course.id}/edit`}
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
                           Edit Course
@@ -184,7 +185,7 @@ export default function page() {
                   </div>
                 </div>
                 <Link
-                  href={`/lecturer/courses/${course.id}`}
+                  href={`/dashboard/lecturer/courses/${course.id}`}
                   className="block w-full text-center py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
                 >
                   View Course

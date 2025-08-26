@@ -1,15 +1,14 @@
 "use client";
 import axios from "@/app/api/axios";
 import { useAppContext } from "@/app/context/AppContext";
-import { LecturerDashboardData, User } from "@/app/types";
+import { LecturerCourse, Role, User } from "@/app/types";
+import { usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface LecturerDashboardContextType {
   user: User | null;
-  lecturerCourses: LecturerDashboardData[];
-  setLecturerCourses: React.Dispatch<
-    React.SetStateAction<LecturerDashboardData[]>
-  >;
+  lecturerCourses: LecturerCourse[];
+  setLecturerCourses: React.Dispatch<React.SetStateAction<LecturerCourse[]>>;
 }
 
 const lecturerDashboardContext = createContext<
@@ -22,12 +21,12 @@ export function LecturerDashboardProvider({
   children: React.ReactNode;
 }) {
   const { user } = useAppContext();
-  const [lecturerCourses, setLecturerCourses] = useState<
-    LecturerDashboardData[]
-  >([]);
-
+  const [lecturerCourses, setLecturerCourses] = useState<LecturerCourse[]>([]);
+  
   useEffect(() => {
     const token = localStorage.getItem("authToken");
+    const storedAuthData = localStorage.getItem("authData");
+    const authData = storedAuthData ? JSON.parse(storedAuthData) : null;
 
     async function fetchData() {
       try {
@@ -35,14 +34,14 @@ export function LecturerDashboardProvider({
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        console.log(res.data);
-        setLecturerCourses(res.data);
+        // console.log("from the fetchData function", res.data);
+        setLecturerCourses(res.data.courses);
       } catch (error) {
         console.error("Error fetching courses:", error);
       }
     }
 
-    fetchData();
+    authData?.role === Role.LECTURER && fetchData();
   }, []);
 
   return (

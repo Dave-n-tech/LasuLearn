@@ -1,7 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { BookOpenIcon, ClockIcon, FileTextIcon, MoveLeft, PlayIcon } from "lucide-react";
+import {
+  BookOpenIcon,
+  ClockIcon,
+  FileTextIcon,
+  MoveLeft,
+  PlayIcon,
+} from "lucide-react";
 import { useStudentDashboard } from "../../context/studentContext";
 import Link from "next/link";
 import { calculateCourseProgress } from "@/app/helpers";
@@ -64,29 +70,33 @@ export default function page() {
 
       <div className="mt-4 space-y-4">
         <h2 className="text-lg font-semibold text-gray-800">Lectures</h2>
-        {lectures.map((lecture, index) => (
-          <div
-            key={lecture.id}
-            className="bg-gray-50 border rounded-lg px-4 py-3 flex justify-between items-center hover:shadow-sm"
-          >
-            <div>
-              <p className="font-medium text-gray-900">
-                {index + 1}. {lecture.title}
-              </p>
-              <p className="text-sm text-gray-600">
-                {lecture.quizzes?.length || 0} Quiz
-                {lecture.quizzes?.length === 1 ? "" : "zes"}
-              </p>
-            </div>
-            <Link
-              href={`/dashboard/student/lectures/${lecture.id}`}
-              className="text-sm flex items-center gap-2 text-blue-600 hover:underline"
+        {lectures.length !== 0 ? (
+          lectures.map((lecture, index) => (
+            <div
+              key={lecture.id}
+              className="bg-gray-50 border rounded-lg px-4 py-3 flex justify-between items-center hover:shadow-sm"
             >
-              <PlayIcon className="w-4 h-4" />
-              Watch
-            </Link>
-          </div>
-        ))}
+              <div>
+                <p className="font-medium text-gray-900">
+                  {index + 1}. {lecture.title}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {lecture.quizzes?.length || 0} Quiz
+                  {lecture.quizzes?.length === 1 ? "" : "zes"}
+                </p>
+              </div>
+              <Link
+                href={`/dashboard/student/lectures/${lecture.id}`}
+                className="text-sm flex items-center gap-2 text-blue-600 hover:underline"
+              >
+                <PlayIcon className="w-4 h-4" />
+                Watch
+              </Link>
+            </div>
+          ))
+        ) : (
+          <p> No lectures for this course yet.</p>
+        )}
       </div>
     </div>
   );

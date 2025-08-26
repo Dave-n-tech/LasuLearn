@@ -14,7 +14,6 @@ export default function DiscussionCard({
   index,
   replies,
 }: DiscussionCardProps) {
-  console.log("Enrolled Course:", enrolled);
 
   const latestPost = enrolled.course.discussionPosts[0];
   const latestReply = latestPost?.replies?.[0];

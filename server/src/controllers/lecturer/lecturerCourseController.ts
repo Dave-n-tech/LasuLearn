@@ -177,12 +177,24 @@ export const getCoursesByLecturerId = async (
 ) => {
   const lecturerId = req.user?.userId;
 
+  if(!lecturerId){
+    res.status(403).json({ message: "Unauthorized"})
+  }
+
   try {
     const courses = await prisma.course.findMany({
       where: {
         lecturerId,
       },
       include: {
+        enrollments: {
+          select: {
+            id: true,
+            courseId: true,
+            userId: true,
+            enrolledAt: true
+          }
+        },
         lectures: {
           select: {
             id: true,
@@ -215,7 +227,7 @@ export const getCoursesByLecturerId = async (
     });
 
     if (courses.length == 0) {
-      res.status(404).json({ message: "No courses found" });
+      res.status(200).json({ message: "No courses found", courses: [] });
       return;
     }
 
