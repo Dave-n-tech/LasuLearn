@@ -11,6 +11,9 @@ export default function RegisterForm() {
     firstName: "",
     lastName: "",
     matricNo: "",
+    level: "",
+    faculty: "",
+    department: "",
     email: "",
     password: "",
     role: Role.STUDENT,
@@ -45,6 +48,9 @@ export default function RegisterForm() {
         firstName: "",
         lastName: "",
         matricNo: "",
+        level: "",
+        faculty: "",
+        department: "",
         email: "",
         password: "",
         role: Role.STUDENT,
@@ -62,7 +68,9 @@ export default function RegisterForm() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
@@ -162,23 +170,90 @@ export default function RegisterForm() {
       </div>
 
       {pathname.endsWith("/student") && (
-        <div>
-          <label
-            htmlFor="matricNo"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Matric No
-          </label>
-          <input
-            id="matricNo"
-            name="matricNo"
-            type="text"
-            required
-            value={formData.matricNo}
-            onChange={handleInputChange}
-            className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-          />
-        </div>
+        <>
+          <div>
+            <label
+              htmlFor="matricNo"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Matric No
+            </label>
+            <input
+              id="matricNo"
+              name="matricNo"
+              type="text"
+              required
+              value={formData.matricNo}
+              onChange={handleInputChange}
+              className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="level"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Level
+            </label>
+            <select
+              name="level"
+              id="level"
+              className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              value={formData.level}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">Select Level</option>
+              <option value="100">100</option>
+              <option value="200">200</option>
+              <option value="300">300</option>
+              <option value="400">400</option>
+              <option value="500">500</option>
+              <option value="600">600</option>
+            </select>
+          </div>
+        </>
+      )}
+
+      {(pathname.endsWith("/lecturer") || pathname.endsWith("/student")) && (
+        <>
+          <div>
+            <label
+              htmlFor="faculty"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Faculty
+            </label>
+            <input
+              id="faculty"
+              name="faculty"
+              type="text"
+              required
+              value={formData.faculty}
+              onChange={handleInputChange}
+              className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="department"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Department
+            </label>
+            <input
+              id="department"
+              name="department"
+              type="text"
+              required
+              value={formData.department}
+              onChange={handleInputChange}
+              className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+            />
+          </div>
+        </>
       )}
 
       <div>

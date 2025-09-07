@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LasuVLP 2.0",
+  title: "LASULEARN",
   description: "VIrtual Learning platform for asynchronous learning",
 };
 

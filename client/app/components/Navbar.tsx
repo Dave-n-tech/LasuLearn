@@ -18,7 +18,7 @@ export const Navbar = () => {
           width={20}
           height={50}
         />
-        <Link href={"/"} className="text-2xl font-bold text-white">LasuVLP</Link>
+        <Link href={"/"} className="text-2xl font-bold text-white">LASULEARN</Link>
       </div>
 
       <div className="flex flex-row gap-2 items-center">

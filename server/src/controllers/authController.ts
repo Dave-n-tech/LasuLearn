@@ -64,9 +64,9 @@ export const registerStudent = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { firstname, lastname, email, password, matricNo } = req.body;
+  const { firstname, lastname, email, password, matricNo, level, faculty, department } = req.body;
 
-  if (!firstname || !lastname || !email || !password || !matricNo) {
+  if (!firstname || !lastname || !email || !password || !matricNo || !level || !faculty || !department) {
     res.status(400).json({ message: "All fields are required" });
     return;
   }
@@ -79,6 +79,9 @@ export const registerStudent = async (
       password,
       role: Role.STUDENT,
       matricNo,
+      level,
+      faculty,
+      department
     });
 
     if (!result.success) {
@@ -110,9 +113,9 @@ export const registerLecturer = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { firstname, lastname, email, password } = req.body;
+  const { firstname, lastname, email, password, faculty, department } = req.body;
 
-  if (!firstname || !lastname || !email || !password) {
+  if (!firstname || !lastname || !email || !password || !faculty || !department) {
     res.status(400).json({ message: "All fields are required" });
     return;
   }
@@ -124,6 +127,8 @@ export const registerLecturer = async (
       email,
       password,
       role: Role.LECTURER,
+      faculty,
+      department
     });
 
     if (!result.success) {

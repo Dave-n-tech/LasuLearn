@@ -10,6 +10,9 @@ interface RegistrationPayload {
   password: string;
   role: Role;
   matricNo?: string;
+  level?: string;
+  faculty?: string;
+  department?: string
 }
 
 export const handleUserRegistration = async ({
@@ -19,6 +22,9 @@ export const handleUserRegistration = async ({
   password,
   role,
   matricNo,
+  level,
+  faculty,
+  department
 }: RegistrationPayload) => {
   const existingUser = await prisma.user.findUnique({
     where: {
@@ -44,6 +50,9 @@ export const handleUserRegistration = async ({
       lastName: lastname,
       role,
       matricNo,
+      level,
+      faculty,
+      department
     },
   });
 

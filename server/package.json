@@ -39,7 +39,7 @@
     "@types/express-fileupload": "^1.5.1",
     "@types/json2csv": "^5.0.7",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^22.16.2",
+    "@types/node": "^22.18.1",
     "nodemon": "^3.1.10",
     "prisma": "^6.8.2",
     "ts-node": "^10.9.2",

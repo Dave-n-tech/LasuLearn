@@ -9,14 +9,17 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  firstName String
-  lastName  String
-  role      Role
-  matricNo  String?  @unique
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  password   String
+  firstName  String
+  lastName   String
+  role       Role
+  matricNo   String?  @unique
+  level      String?
+  faculty    String?
+  department String?
+  createdAt  DateTime @default(now())
 
   enrollments       Enrollment[] // For students
   coursesCreated    Course[]           @relation("LecturerCourses") // For lecturers
@@ -26,7 +29,7 @@ model User {
   discussionReplies DiscussionReply[]
   attendanceReports AttendanceReport[] // For lecturers
   quizSubmissions   QuizSubmission[] // for students
-  notifications Notification[]
+  notifications     Notification[]
 }
 
 model Course {
@@ -36,6 +39,7 @@ model Course {
   description String?
   createdAt   DateTime @default(now())
   lecturerId  Int
+  thumbnail   String?
 
   lecturer          User               @relation("LecturerCourses", fields: [lecturerId], references: [id])
   enrollments       Enrollment[]
@@ -128,11 +132,11 @@ model QuizSubmission {
 }
 
 model Notification {
-  id Int @id @default(autoincrement())
-  userId Int
-  title String
-  message String
-  isRead Boolean @default(false)
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])

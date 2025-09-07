@@ -18,7 +18,7 @@ export function Footer() {
                 width={20}
                 height={50}
               />
-              <span className="text-2xl font-bold">LasuVLP</span>
+              <span className="text-2xl font-bold">LASULEARN</span>
             </div>
             <p className="text-gray-400 mb-6">
               Empowering universities with intelligent learning solutions and

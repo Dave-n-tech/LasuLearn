@@ -82,7 +82,7 @@ export default function DashboardLayoutComponent({ children }: { children: React
                 href={"/"}
                 className="text-xl font-bold text-blue-600 lg:hidden ml-3"
               >
-                LasuVLP
+                LASULEARN
               </Link>
             </div>
             <div className="flex items-center gap-4">

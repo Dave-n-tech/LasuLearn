@@ -13,6 +13,7 @@ import {
   BookOpenIcon,
   CalendarCheck,
   CalendarIcon,
+  Factory,
   HomeIcon,
   MessageCircleQuestion,
   MessageSquareIcon,
@@ -184,6 +185,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       email: formData.email,
       password: formData.password,
       matricNo: formData.matricNo,
+      level: formData.level,
+      faculty: formData.faculty,
+      department: formData.department, 
     };
 
     try {

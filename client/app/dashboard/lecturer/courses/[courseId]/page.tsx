@@ -111,12 +111,13 @@ export default function page() {
 
   return (
     <div className="p-6 space-y-6">
-      <Link href={"/dashboard/lecturer/courses"}>
-        <span className="mb-4 text-blue-500 hover:text-blue-700 font-semibold">
-          <MoveLeft size={18} className="inline" />
-          back to courses
-        </span>
-      </Link>
+      <div className="mb-4">
+        <Link href={"/dashboard/lecturer/courses"}>
+          <Button variant="outline" className="flex items-center gap-2">
+            ← Back to courses
+          </Button>
+        </Link>
+      </div>
 
       {/* Thumbnail + Title */}
       <div className="relative w-full h-64 rounded-2xl overflow-hidden shadow-lg">

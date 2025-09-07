@@ -228,17 +228,20 @@ export default function page() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Link
-                        href={`/lecturer/lectures/${lecture.id}`}
+                        href={`/dashboard/lecturer/content/${lecture.id}`}
                         className="text-blue-600 hover:text-blue-900 mr-4"
                       >
                         View
                       </Link>
                       <Link
-                        href={`/lecturer/lectures/${lecture.id}/edit`}
-                        className="text-gray-600 hover:text-gray-900"
+                        href={`/dashboard/lecturer/content/${lecture.id}/edit`}
+                        className="text-gray-600 hover:text-gray-900 mr-4"
                       >
                         Edit
                       </Link>
+                      <button className='text-red-600 hover:text-red-900 mr-4"'>
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}

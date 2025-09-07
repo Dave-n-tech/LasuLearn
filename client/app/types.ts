@@ -7,6 +7,9 @@ export type User = {
   email: string;
   role: Role;
   matricNo?: string;
+  level?:      string
+  faculty?:    string
+  department?: string
 };
 
 export interface SidebarLink {
@@ -28,6 +31,9 @@ export type RegisterFormData = {
   email: string;
   password: string;
   role: Role;
+  level?: string;
+  faculty?: string;
+  department?: string
 };
 
 export type LoginFormData = {
