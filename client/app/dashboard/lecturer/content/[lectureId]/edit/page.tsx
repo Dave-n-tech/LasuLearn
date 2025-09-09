@@ -6,29 +6,69 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLecturerDashboard } from "../../../context/lecturerContext";
+import axios from "@/app/api/axios";
+import toast from "react-hot-toast";
 
 export default function page() {
   const { courseId, lectureId } = useParams();
   const router = useRouter();
+  const { lecturerCourses, setShouldRefresh } = useLecturerDashboard()
 
-  const [title, setTitle] = useState("Sample Lecture Title");
-  const [videoUrl, setVideoUrl] = useState("https://example.com/video.mp4");
-  const [duration, setDuration] = useState(45);
+  const lecture = lecturerCourses
+    .flatMap(course => course.lectures)
+    .find(lec => lec.id === Number(lectureId));
+
+  const [title, setTitle] = useState(lecture?.title || "");
+  const [videoUrl, setVideoUrl] = useState(lecture?.videoUrl || "");
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: handle API request to update lecture
-    // If videoFile exists, upload new file before saving changes
-    console.log({
-      title,
-      duration,
-      videoUrl,
-      newVideo: videoFile,
-    });
+    setLoading(true);
+    try {
+      if (videoFile) {
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("video", videoFile);
 
-    router.push(`/lecturer/courses/${courseId}/lectures/${lectureId}`);
+        await axios.patch(
+          `/lecturers/courses/lectures/${lectureId}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      } else {
+        await axios.patch(
+          `/lecturers/courses/lectures/${lectureId}`,
+          { title },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      }
+
+      toast.success("Lecture updated successfully!");
+      setShouldRefresh(true);
+      router.push(`/dashboard/lecturer/content`);
+    } catch (error) {
+      console.error("Error updating lecture:", error);
+      toast.error("Failed to update lecture. Please try again.");
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,17 +89,6 @@ export default function page() {
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="duration">Duration (minutes)</Label>
-              <Input
-                id="duration"
-                type="number"
-                value={duration}
-                onChange={(e) => setDuration(Number(e.target.value))}
                 required
               />
             </div>
@@ -91,7 +120,7 @@ export default function page() {
             </div>
 
             <div className="flex justify-end">
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" className="cursor-pointer" disabled={loading}>{loading ? "Saving..." :"Save Changes"}</Button>
             </div>
           </form>
         </CardContent>

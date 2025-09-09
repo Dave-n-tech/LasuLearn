@@ -10,15 +10,19 @@ import {
 import Link from "next/link";
 import { useLecturerDashboard } from "../context/lecturerContext";
 import { formatDistanceToNow } from "date-fns";
+import axios from "@/app/api/axios";
+import toast from "react-hot-toast";
 
 export default function page() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
-  const { lecturerCourses } = useLecturerDashboard();
-  // Mock lecture data
+  const { lecturerCourses, setShouldRefresh } = useLecturerDashboard();
+
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
   const lectures = lecturerCourses.flatMap((course) => course.lectures);
 
-  // Filter lectures based on search term and filter
   const filteredLectures = lectures.filter((lecture) => {
     const course = lecturerCourses.find((c) =>
       c.lectures.some((l) => l.id === lecture.id)
@@ -42,6 +46,21 @@ export default function page() {
 
     return matchesSearch;
   });
+
+  const handleDelete = async (lectureId: number) => {
+    try {
+      await axios.delete(`/lecturers/courses/lectures/${lectureId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      })
+      toast.success("Lecture successfully deleted");
+      setShouldRefresh(true)
+    } catch (error) {
+      console.error("Error deleting lecture:", error);
+      toast.error("Failed to delete lecture. Please try again.");
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -224,7 +243,7 @@ export default function page() {
                         >
                           Edit
                         </Link>
-                        <button className='text-red-600 hover:text-red-900 mr-4"'>
+                        <button onClick={() => handleDelete(lecture.id)} className='text-red-600 hover:text-red-900 mr-4 cursor-pointer'>
                           Delete
                         </button>
                       </td>

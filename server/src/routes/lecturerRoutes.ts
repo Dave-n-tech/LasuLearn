@@ -109,6 +109,7 @@ router.get(
 router.patch(
   "/courses/lectures/:lectureId",
   verifyToken([Role.LECTURER, Role.ADMIN]),
+  upload.single("video"),
   updateLectureById
 );
 

@@ -1,88 +1,95 @@
-'use client'
-import React, { useState, Component } from 'react'
+"use client";
+import React, { useState, Component, useEffect } from "react";
 import {
   HelpCircleIcon,
   PlusIcon,
   SearchIcon,
   FilterIcon,
   BarChart3Icon,
-} from 'lucide-react'
-import Link from 'next/link'
+} from "lucide-react";
+import Link from "next/link";
+import { useLecturerDashboard } from "../context/lecturerContext";
+import { formatDistanceToNow } from "date-fns";
+import axios from "@/app/api/axios";
+import toast from "react-hot-toast";
+
+interface QuizSubmission {
+  id: number;
+  userId: number;
+  isCorrect: boolean;
+  selectedAnswer: string;
+  quizId: number;
+  lectureId: number;
+  submittedAt: Date;
+}
 
 export default function page() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filter, setFilter] = useState('all')
-  // Mock quiz data
-  const quizzes = [
-    {
-      id: 1,
-      title: 'Web Development Basics Quiz',
-      lecture: 'Introduction to Modern Web Development',
-      course: 'Advanced Web Development',
-      questions: 5,
-      submissions: 43,
-      averageScore: 85,
-      passRate: 92,
-      created: 'Jan 16, 2024',
-    },
-    {
-      id: 2,
-      title: 'Modern JavaScript Features Quiz',
-      lecture: 'Introduction to Modern Web Development',
-      course: 'Advanced Web Development',
-      questions: 8,
-      submissions: 40,
-      averageScore: 78,
-      passRate: 88,
-      created: 'Jan 17, 2024',
-    },
-    {
-      id: 3,
-      title: 'React Components Quiz',
-      lecture: 'React Fundamentals',
-      course: 'Advanced Web Development',
-      questions: 6,
-      submissions: 38,
-      averageScore: 82,
-      passRate: 90,
-      created: 'Jan 20, 2024',
-    },
-    {
-      id: 4,
-      title: 'Sorting Algorithms Quiz',
-      lecture: 'Sorting Algorithms',
-      course: 'Data Structures and Algorithms',
-      questions: 7,
-      submissions: 35,
-      averageScore: 76,
-      passRate: 82,
-      created: 'Feb 10, 2024',
-    },
-    {
-      id: 5,
-      title: 'React Native Basics Quiz',
-      lecture: 'React Native Basics',
-      course: 'Mobile App Development',
-      questions: 5,
-      submissions: 30,
-      averageScore: 88,
-      passRate: 93,
-      created: 'Dec 15, 2023',
-    },
-  ]
-  // Filter quizzes based on search term and filter
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("all");
+  const { lecturerCourses, setShouldRefresh } = useLecturerDashboard();
+
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+  const quizzes = lecturerCourses.flatMap((course) =>
+    course.lectures.flatMap((lecture) =>
+      lecture.quizzes.map((quiz) => ({
+        ...quiz,
+        lectureTitle: lecture.title,
+        courseTitle: course.title,
+        averageScore: 0,
+      }))
+    )
+  );
+
+  const quizSubmissions = lecturerCourses.flatMap((course) =>
+    course.lectures.map((lecture) => lecture.quizSubmissions)
+  );
+
+  function getLectureAverage(submissions: QuizSubmission[], lectureId: number) {
+    const lectureSubs = submissions.filter((s) => s.lectureId === lectureId);
+    if (lectureSubs.length === 0) return 0;
+
+    const correctCount = lectureSubs.filter((s) => s.isCorrect).length;
+    return (correctCount / lectureSubs.length) * 100; // percentage score
+  }
+
+  useEffect(() => {
+    console.log(quizSubmissions);
+  }, []);
+
   const filteredQuizzes = quizzes.filter((quiz) => {
+    quiz.averageScore = getLectureAverage(
+      quizSubmissions.flat(),
+      quiz.id
+    );
+
     const matchesSearch =
-      quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      quiz.lecture.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      quiz.course.toLowerCase().includes(searchTerm.toLowerCase())
-    if (filter === 'all') return matchesSearch
-    if (filter === 'high-performance')
-      return matchesSearch && quiz.averageScore >= 85
-    if (filter === 'low-performance')
-      return matchesSearch && quiz.averageScore < 80
-    return matchesSearch
-  })
+      quiz.lectureTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quiz.courseTitle.toLowerCase().includes(searchTerm.toLowerCase());
+    if (filter === "all") return matchesSearch;
+    if (filter === "high-performance")
+      return matchesSearch && quiz.averageScore >= 85;
+    if (filter === "low-performance")
+      return matchesSearch && quiz.averageScore < 80;
+    return matchesSearch;
+  });
+
+  const handleDelete = async (quizId: number) => {
+    try {
+      await axios.delete(`/lecturers/lectures/quizzes/${quizId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      })
+      toast.success("Quiz successfully deleted");
+      setShouldRefresh(true)
+    } catch (error) {
+      console.error("Error deleting quiz:", error);
+      toast.error("Failed to delete quiz. Please try again.");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -135,12 +142,6 @@ export default function page() {
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    Quiz
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
                     Lecture / Course
                   </th>
                   <th
@@ -163,12 +164,6 @@ export default function page() {
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Created
-                  </th>
-                  <th
-                    scope="col"
                     className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
                     Actions
@@ -176,43 +171,42 @@ export default function page() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredQuizzes.map((quiz) => (
-                  <tr key={quiz.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                            <HelpCircleIcon className="w-5 h-5 text-purple-600" />
-                          </div>
+                {filteredQuizzes.map((quiz, i) => {
+                  quiz.averageScore = getLectureAverage(
+                    quizSubmissions.flat(),
+                    quiz.id
+                  );      
+                  return (
+                    <tr key={quiz.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {quiz.lectureTitle}
                         </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {quiz.title}
-                          </div>
+                        <div className="text-sm text-gray-500">
+                          {quiz.courseTitle}
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {quiz.lecture}
-                      </div>
-                      <div className="text-sm text-gray-500">{quiz.course}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">
-                        {quiz.questions}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">
-                        {quiz.submissions}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-600">
+                          {quiz.question}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-600">
+                          {quizSubmissions[i].length}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
                           <div
-                            className={`h-2 rounded-full ${quiz.averageScore >= 90 ? 'bg-green-500' : quiz.averageScore >= 75 ? 'bg-blue-500' : 'bg-yellow-500'}`}
+                            className={`h-2 rounded-full ${
+                              quiz.averageScore >= 90
+                                ? "bg-green-500"
+                                : quiz.averageScore >= 75
+                                ? "bg-blue-500"
+                                : "bg-yellow-500"
+                            }`}
                             style={{
                               width: `${quiz.averageScore}%`,
                             }}
@@ -223,32 +217,34 @@ export default function page() {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">
-                        {quiz.created}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                      {/* <Link
+                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        {/* <Link
                         href={`/dashboard/lecturer/quizzes/${quiz.id}`}
                         className="text-blue-600 hover:text-blue-900 mr-4"
                       >
                         Details
                       </Link> */}
-                      <Link
-                        href={`/dashboard/lecturer/quizzes/${quiz.id}/edit`}
-                        className="text-gray-600 hover:text-gray-900"
-                      >
-                        Edit
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
+                        <Link
+                          href={`/dashboard/lecturer/quizzes/${quiz.id}/edit`}
+                          className="text-gray-600 hover:text-gray-900 mr-4"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(quiz.id)}
+                          className="text-red-600 hover:text-red-900 mr-4 cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }
