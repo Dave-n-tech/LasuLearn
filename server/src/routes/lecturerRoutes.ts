@@ -29,6 +29,7 @@ import {
   getQuizById,
   updateQuizById,
 } from "../controllers/student/courseController";
+import { upload } from "../utils/multer";
 
 const router = express.Router();
 
@@ -56,13 +57,23 @@ router.get(
 );
 
 // Course management:
-router.post("/courses", verifyToken([Role.LECTURER]), createCourse);
-router.get("/courses/all", verifyToken([Role.LECTURER]), getCoursesByLecturerId);
+router.post(
+  "/courses",
+  verifyToken([Role.LECTURER]),
+  upload.single("thumbnail"),
+  createCourse
+);
+router.get(
+  "/courses/all",
+  verifyToken([Role.LECTURER]),
+  getCoursesByLecturerId
+);
 router.get(
   "/courses/:courseId",
   verifyToken([Role.LECTURER]),
   getCourseDetailsById
 );
+
 router.patch(
   "/courses/:courseId",
   verifyToken([Role.LECTURER]),
@@ -79,6 +90,7 @@ router.delete(
 router.post(
   "/courses/:courseId/lectures",
   verifyToken([Role.LECTURER]),
+  upload.single("video"),
   uploadLectureVideo
 );
 
@@ -136,7 +148,6 @@ router.delete(
   verifyToken([Role.LECTURER, Role.ADMIN]),
   deleteQuizById
 );
-
 
 // Attendance reports
 router.post(

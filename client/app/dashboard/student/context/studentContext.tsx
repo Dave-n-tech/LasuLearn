@@ -2,8 +2,6 @@
 import axios from "@/app/api/axios";
 import { useAppContext } from "@/app/context/AppContext";
 import { Course, EnrolledCourse, Notification, Role, User } from "@/app/types";
-import { get } from "http";
-import { usePathname } from "next/navigation";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface StudentDashboardContextType {
@@ -14,8 +12,6 @@ interface StudentDashboardContextType {
   message: string | null;
   setMessage: React.Dispatch<React.SetStateAction<string | null>>;
   user?: User | null;
-  notifications: Notification[];
-  setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
   enrolledCourses: EnrolledCourse[];
   setEnrolledCourses: React.Dispatch<React.SetStateAction<EnrolledCourse[]>>;
   allCourses: Course[];
@@ -34,7 +30,6 @@ export function StudentDashboardProvider({
 }) {
   const { user, loading, setLoading } = useAppContext();
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [allCourses, setAllCourses] = useState<Course[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -47,7 +42,7 @@ export function StudentDashboardProvider({
 
     async function fetchData() {
       try {
-        const [enrolledRes, allCoursesRes, notificationsRes] =
+        const [enrolledRes, allCoursesRes] =
           await Promise.all([
             axios.get("/students/courses/enrollments", {
               headers: { Authorization: `Bearer ${token}` },
@@ -55,15 +50,11 @@ export function StudentDashboardProvider({
             axios.get("/students/courses/all", {
               headers: { Authorization: `Bearer ${token}` },
             }),
-            axios.get("/notifications", {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
           ]);
 
         // console.log("Enrolled courses: ", enrolledRes.data)
         setEnrolledCourses(enrolledRes.data);
         setAllCourses(allCoursesRes.data);
-        setNotifications(notificationsRes.data.notifications);
       } catch (error) {
         console.error("Error fetching student data:", error);
       }
@@ -95,8 +86,6 @@ export function StudentDashboardProvider({
         message,
         setMessage,
         user,
-        notifications,
-        setNotifications,
         enrolledCourses,
         setEnrolledCourses,
         allCourses,

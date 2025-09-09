@@ -1,6 +1,5 @@
 module.exports = {
   images: {
-    domains: ['images.unsplash.com'],
-    remotePatterns: [new URL('https://images.unsplash.com/**')],
+    remotePatterns: [new URL('https://images.unsplash.com/**'), new URL('https://plus.unsplash.com/**'), new URL('https://res.cloudinary.com/**')],
   },
 }

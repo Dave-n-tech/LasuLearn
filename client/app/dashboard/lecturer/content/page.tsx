@@ -1,96 +1,53 @@
-'use client'
-import React, { useState } from 'react'
+"use client";
+import React, { useState } from "react";
 import {
   VideoIcon,
   SearchIcon,
   FilterIcon,
   HelpCircleIcon,
-} from 'lucide-react'
-import Link from 'next/link'
+  PlusIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { useLecturerDashboard } from "../context/lecturerContext";
+import { formatDistanceToNow } from "date-fns";
 
 export default function page() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filter, setFilter] = useState('all')
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("all");
+  const { lecturerCourses } = useLecturerDashboard();
   // Mock lecture data
-  const lectures = [
-    {
-      id: 1,
-      title: 'Introduction to Modern Web Development',
-      course: 'Advanced Web Development',
-      duration: '1h 15m',
-      created: 'Jan 15, 2024',
-      engagement: 92,
-      quizzes: 2,
-      submissions: 43,
-    },
-    {
-      id: 2,
-      title: 'React Fundamentals',
-      course: 'Advanced Web Development',
-      duration: '1h 45m',
-      created: 'Jan 18, 2024',
-      engagement: 88,
-      quizzes: 1,
-      submissions: 40,
-    },
-    {
-      id: 3,
-      title: 'State Management with React Hooks',
-      course: 'Advanced Web Development',
-      duration: '1h 30m',
-      created: 'Jan 22, 2024',
-      engagement: 85,
-      quizzes: 1,
-      submissions: 38,
-    },
-    {
-      id: 4,
-      title: 'Intro to Algorithms',
-      course: 'Data Structures and Algorithms',
-      duration: '1h 30m',
-      created: 'Feb 5, 2024',
-      engagement: 90,
-      quizzes: 2,
-      submissions: 36,
-    },
-    {
-      id: 5,
-      title: 'Sorting Algorithms',
-      course: 'Data Structures and Algorithms',
-      duration: '1h 20m',
-      created: 'Feb 8, 2024',
-      engagement: 82,
-      quizzes: 1,
-      submissions: 35,
-    },
-    {
-      id: 6,
-      title: 'React Native Basics',
-      course: 'Mobile App Development',
-      duration: '1h 20m',
-      created: 'Dec 12, 2023',
-      engagement: 78,
-      quizzes: 1,
-      submissions: 30,
-    },
-  ]
+  const lectures = lecturerCourses.flatMap((course) => course.lectures);
+
   // Filter lectures based on search term and filter
   const filteredLectures = lectures.filter((lecture) => {
+    const course = lecturerCourses.find((c) =>
+      c.lectures.some((l) => l.id === lecture.id)
+    );
+
     const matchesSearch =
       lecture.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lecture.course.toLowerCase().includes(searchTerm.toLowerCase())
-    if (filter === 'all') return matchesSearch
-    if (filter === 'high-engagement')
-      return matchesSearch && lecture.engagement >= 85
-    if (filter === 'low-engagement')
-      return matchesSearch && lecture.engagement < 70
-    return matchesSearch
-  })
+      course?.title.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // calculate average engagement if logs exist
+    const logs = lecture.attendanceLogs || [];
+    const avgEngagement =
+      logs.length > 0
+        ? logs.reduce((acc, log) => acc + log.engagementScore, 0) / logs.length
+        : 0;
+
+    if (filter === "all") return matchesSearch;
+    if (filter === "high-engagement")
+      return matchesSearch && avgEngagement >= 85;
+    if (filter === "low-engagement") return matchesSearch && avgEngagement < 70;
+
+    return matchesSearch;
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Lecture Content</h1>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -113,6 +70,13 @@ export default function page() {
             </select>
             <FilterIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
           </div>
+          <Link
+            href="/dashboard/lecturer/content/new"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            <PlusIcon className="w-5 h-5" />
+            Create Lecture
+          </Link>
         </div>
       </div>
       {filteredLectures.length === 0 ? (
@@ -172,84 +136,106 @@ export default function page() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredLectures.map((lecture) => (
-                  <tr key={lecture.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            <VideoIcon className="w-5 h-5 text-blue-600" />
+                {filteredLectures.map((lecture) => {
+                  const course = lecturerCourses.find((c) =>
+                    c.lectures.some((l) => l.id === lecture.id)
+                  )?.title;
+
+                  const logs = lecture.attendanceLogs || [];
+                  const avgEngagement =
+                    logs.length > 0
+                      ? logs.reduce(
+                          (acc, log) => acc + log.engagementScore,
+                          0
+                        ) / logs.length
+                      : 0;
+
+                  return (
+                    <tr key={lecture.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                              <VideoIcon className="w-5 h-5 text-blue-600" />
+                            </div>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {lecture.title}
+                            </div>
                           </div>
                         </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {lecture.title}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-600">{course}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-600">
+                          {lecture.duration}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-600">
+                          {formatDistanceToNow(new Date(lecture.createdAt), {
+                            addSuffix: true,
+                          })}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                            <div
+                              className={`h-2 rounded-full ${
+                                avgEngagement >= 90
+                                  ? "bg-green-500"
+                                  : avgEngagement >= 75
+                                  ? "bg-blue-500"
+                                  : "bg-yellow-500"
+                              }`}
+                              style={{
+                                width: `${avgEngagement}%`,
+                              }}
+                            ></div>
                           </div>
+                          <span className="text-sm text-gray-600">
+                            {avgEngagement}%
+                          </span>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">
-                        {lecture.course}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">
-                        {lecture.duration}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">
-                        {lecture.created}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                          <div
-                            className={`h-2 rounded-full ${lecture.engagement >= 90 ? 'bg-green-500' : lecture.engagement >= 75 ? 'bg-blue-500' : 'bg-yellow-500'}`}
-                            style={{
-                              width: `${lecture.engagement}%`,
-                            }}
-                          ></div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-1">
+                          <HelpCircleIcon className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">
+                            {lecture.quizzes.length} (
+                            {lecture.quizSubmissions.length} submissions)
+                          </span>
                         </div>
-                        <span className="text-sm text-gray-600">
-                          {lecture.engagement}%
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-1">
-                        <HelpCircleIcon className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">
-                          {lecture.quizzes} ({lecture.submissions} submissions)
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Link
-                        href={`/dashboard/lecturer/content/${lecture.id}`}
-                        className="text-blue-600 hover:text-blue-900 mr-4"
-                      >
-                        View
-                      </Link>
-                      <Link
-                        href={`/dashboard/lecturer/content/${lecture.id}/edit`}
-                        className="text-gray-600 hover:text-gray-900 mr-4"
-                      >
-                        Edit
-                      </Link>
-                      <button className='text-red-600 hover:text-red-900 mr-4"'>
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <Link
+                          href={`/dashboard/lecturer/content/${lecture.id}`}
+                          className="text-blue-600 hover:text-blue-900 mr-4"
+                        >
+                          View
+                        </Link>
+                        <Link
+                          href={`/dashboard/lecturer/content/${lecture.id}/edit`}
+                          className="text-gray-600 hover:text-gray-900 mr-4"
+                        >
+                          Edit
+                        </Link>
+                        <button className='text-red-600 hover:text-red-900 mr-4"'>
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }

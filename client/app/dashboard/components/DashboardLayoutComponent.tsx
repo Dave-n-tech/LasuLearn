@@ -6,13 +6,12 @@ import { BellIcon, MenuIcon, UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
-import { useStudentDashboard } from '../student/context/studentContext';
 
 export default function DashboardLayoutComponent({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user, loading, StudentSideBarLinks, LecturerSideBarLinks } =
     useAppContext();
-  const { notifications } = useStudentDashboard()
+  const { notifications } = useAppContext()
   const router = useRouter();
   const userName =
     `${user?.firstName} ${user?.lastName}`.trim() || "Unavailable";

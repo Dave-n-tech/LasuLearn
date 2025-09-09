@@ -3,6 +3,7 @@ import React, { useState, createContext, useContext, useEffect } from "react";
 import {
   AppContextType,
   LoginFormData,
+  Notification,
   RegisterFormData,
   Role,
   SidebarLink,
@@ -32,7 +33,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState<string | null>(null)
+  const [token, setToken] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
   const refreshCookie = getCookie("refresh_token");
 
   const StudentSideBarLinks: SidebarLink[] = [
@@ -81,7 +84,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     {
       icon: BookOpenIcon,
       label: "Courses",
-      href: "/dashboard/lecturer/courses"
+      href: "/dashboard/lecturer/courses",
     },
     {
       icon: VideoIcon,
@@ -91,7 +94,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     {
       icon: MessageCircleQuestion,
       label: "Quizzes",
-      href: "/dashboard/lecturer/quizzes"
+      href: "/dashboard/lecturer/quizzes",
     },
     {
       icon: UsersIcon,
@@ -143,7 +146,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       // Clear all client-side tokens if refresh fails
       localStorage.removeItem("authToken");
-      setToken(null)
+      setToken(null);
       localStorage.removeItem("authData");
       setUser(null);
       return null;
@@ -165,7 +168,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       console.log("User logged in:", user);
     } catch (error: any) {
       console.error("Login failed:", error);
-      setError(error.response.data.message || "Login failed. Please check your credentials.");
+      setError(
+        error.response.data.message ||
+          "Login failed. Please check your credentials."
+      );
     } finally {
       setLoading(false);
     }
@@ -187,7 +193,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       matricNo: formData.matricNo,
       level: formData.level,
       faculty: formData.faculty,
-      department: formData.department, 
+      department: formData.department,
     };
 
     try {
@@ -239,13 +245,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    const accessToken = localStorage.getItem("authToken");
+    const storedAuthData = localStorage.getItem("authData");
+
     const checkAuthStatus = async () => {
       setLoading(true);
       setError(null);
       try {
-        const accessToken = localStorage.getItem("authToken");
-        const storedAuthData = localStorage.getItem("authData");
-
         if (storedAuthData) {
           try {
             const parsedUser = JSON.parse(storedAuthData);
@@ -278,7 +284,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             // Fall through to refresh token logic if access token is invalid
             localStorage.removeItem("authData");
             localStorage.removeItem("authToken");
-            setUser(null)
+            setUser(null);
           }
         }
 
@@ -305,6 +311,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     checkAuthStatus();
   }, []);
 
+  useEffect(() => {
+    const accessToken = localStorage.getItem("authToken");
+    const storedAuthData = localStorage.getItem("authData");
+    const authData = storedAuthData ? JSON.parse(storedAuthData) : null;
+
+    const fetchNotifications = async () => {
+      try {
+        const res = await axios.get("/notifications", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        setNotifications(res.data.notifications);
+      } catch (error) {
+        console.error("Error fetching notifications on app load:", error);
+      }
+    };
+
+    authData && fetchNotifications();
+  }, [notifications]);
+
   return (
     <AppContext.Provider
       value={{
@@ -319,6 +344,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
+        notifications,
+        setNotifications,
         StudentSideBarLinks,
         LecturerSideBarLinks,
       }}

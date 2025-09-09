@@ -1,14 +1,6 @@
-'use client'
-import React from "react";
-import {
-  UsersIcon,
-  PlayIcon,
-  BarChart3Icon,
-  ActivityIcon,
-  BookOpenIcon,
-  CheckCircleIcon,
-  ClockIcon,
-} from "lucide-react";
+"use client";
+import React, { useEffect } from "react";
+import { PlayIcon, BookOpenIcon, ClockIcon } from "lucide-react";
 import Link from "next/link";
 import LecturerDashboardStats from "../components/LecturerDashboardStats";
 import { useLecturerDashboard } from "./context/lecturerContext";
@@ -16,21 +8,44 @@ import { useLecturerDashboard } from "./context/lecturerContext";
 export default function page() {
   const { lecturerCourses } = useLecturerDashboard();
 
-  const totalCourses = lecturerCourses.length
-  const totalStudents = lecturerCourses.filter((course) => {
-    course.enrollments
-  })
+  const totalCourses = lecturerCourses.length;
+  const totalStudents = lecturerCourses.reduce(
+    (acc, course) => acc + course.enrollments.length,
+    0
+  );
+  const totalLectures = lecturerCourses.reduce(
+    (acc, course) => acc + course.lectures.length,
+    0
+  );
+  const avgEngagement = lecturerCourses
+    .flatMap((c) => c.lectures) // all lectures
+    .flatMap((l) => l.attendanceLogs.map((a) => a.engagementScore)) // all scores
+    .reduce((sum, score, _, arr) => sum + score / arr.length, 0);
 
-  console.log("Lecturer courses", lecturerCourses)
-  console.log("enrollments", totalStudents)
+  const quizPerformance = (() => {
+    const submissions = lecturerCourses
+      .flatMap((c) => c.lectures)
+      .flatMap((l) => l.quizSubmissions);
+
+    if (submissions.length === 0) return 0;
+
+    const correct = submissions.filter((s) => s.isCorrect).length;
+    return (correct / submissions.length) * 100;
+  })();
+
+  useEffect(() => {
+    console.log("Lecturer courses", lecturerCourses);
+
+    // console.log("enrollments", totalStudents)
+  }, [lecturerCourses]);
 
   // Mock data
   const stats = {
-    totalCourses: 5,
-    totalLectures: 24,
-    totalStudents: 156,
-    avgEngagement: 87,
-    quizPerformance: 78,
+    totalCourses,
+    totalLectures,
+    totalStudents,
+    avgEngagement,
+    quizPerformance,
   };
 
   const recentActivity = [
@@ -55,6 +70,7 @@ export default function page() {
       timestamp: "3 days ago",
     },
   ];
+  
   return (
     <div className="space-y-6 lg:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -64,151 +80,6 @@ export default function page() {
       {/* Stats */}
       <LecturerDashboardStats stats={stats} />
 
-      {/* Performance Summary */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Quiz Performance Summary
-          </h2>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Advanced Web Development</span>
-              <div className="flex items-center gap-2">
-                <div className="bg-gray-100 h-2 rounded-full w-32">
-                  <div
-                    className="bg-green-500 h-2 rounded-full"
-                    style={{
-                      width: "85%",
-                    }}
-                  ></div>
-                </div>
-                <span className="text-sm text-gray-600">85%</span>
-              </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Data Structures</span>
-              <div className="flex items-center gap-2">
-                <div className="bg-gray-100 h-2 rounded-full w-32">
-                  <div
-                    className="bg-yellow-500 h-2 rounded-full"
-                    style={{
-                      width: "72%",
-                    }}
-                  ></div>
-                </div>
-                <span className="text-sm text-gray-600">72%</span>
-              </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Mobile App Development</span>
-              <div className="flex items-center gap-2">
-                <div className="bg-gray-100 h-2 rounded-full w-32">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full"
-                    style={{
-                      width: "90%",
-                    }}
-                  ></div>
-                </div>
-                <span className="text-sm text-gray-600">90%</span>
-              </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">UI/UX Design</span>
-              <div className="flex items-center gap-2">
-                <div className="bg-gray-100 h-2 rounded-full w-32">
-                  <div
-                    className="bg-purple-500 h-2 rounded-full"
-                    style={{
-                      width: "65%",
-                    }}
-                  ></div>
-                </div>
-                <span className="text-sm text-gray-600">65%</span>
-              </div>
-            </div>
-          </div>
-          <div className="mt-6">
-            <Link
-              href="/lecturer/analytics"
-              className="text-sm text-blue-600 hover:text-blue-700"
-            >
-              View detailed analytics →
-            </Link>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Engagement Overview
-          </h2>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Video Completion Rate</span>
-              <div className="flex items-center gap-2">
-                <div className="bg-gray-100 h-2 rounded-full w-32">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full"
-                    style={{
-                      width: "78%",
-                    }}
-                  ></div>
-                </div>
-                <span className="text-sm text-gray-600">78%</span>
-              </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Quiz Participation</span>
-              <div className="flex items-center gap-2">
-                <div className="bg-gray-100 h-2 rounded-full w-32">
-                  <div
-                    className="bg-green-500 h-2 rounded-full"
-                    style={{
-                      width: "92%",
-                    }}
-                  ></div>
-                </div>
-                <span className="text-sm text-gray-600">92%</span>
-              </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Discussion Participation</span>
-              <div className="flex items-center gap-2">
-                <div className="bg-gray-100 h-2 rounded-full w-32">
-                  <div
-                    className="bg-yellow-500 h-2 rounded-full"
-                    style={{
-                      width: "67%",
-                    }}
-                  ></div>
-                </div>
-                <span className="text-sm text-gray-600">67%</span>
-              </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Attendance Rate</span>
-              <div className="flex items-center gap-2">
-                <div className="bg-gray-100 h-2 rounded-full w-32">
-                  <div
-                    className="bg-indigo-500 h-2 rounded-full"
-                    style={{
-                      width: "89%",
-                    }}
-                  ></div>
-                </div>
-                <span className="text-sm text-gray-600">89%</span>
-              </div>
-            </div>
-          </div>
-          <div className="mt-6">
-            <Link
-              href="/lecturer/analytics"
-              className="text-sm text-blue-600 hover:text-blue-700"
-            >
-              View detailed analytics →
-            </Link>
-          </div>
-        </div>
-      </div>
       {/* Recent Activity */}
       <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">

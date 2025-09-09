@@ -128,7 +128,7 @@ model QuizSubmission {
   quiz    Quiz    @relation(fields: [quizId], references: [id])
   lecture Lecture @relation(fields: [lectureId], references: [id])
 
-  @@unique([userId, lectureId])
+  @@unique([userId, quizId])
 }
 
 model Notification {

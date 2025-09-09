@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useLecturerDashboard } from "../../context/lecturerContext";
 
 // Mock fetch function (replace with your real DB call)
 async function getLectureById(lectureId: number) {
@@ -41,11 +42,12 @@ async function getLectureById(lectureId: number) {
   };
 }
 
-export default async function page() {
+export default function page() {
   const { lectureId } = useParams<{ lectureId: string }>();
   const router = useRouter()
-  const lecture = await getLectureById(Number(lectureId));
-
+  const { lecturerCourses } = useLecturerDashboard()
+  const lectures = lecturerCourses.flatMap(course => course.lectures);
+  const lecture = lectures.find(lec => lec.id === Number(lectureId));
 
   return (
     <div className="p-6 space-y-6">
@@ -63,16 +65,16 @@ export default async function page() {
       {/* Lecture Details */}
       <Card>
         <CardHeader>
-          <CardTitle>{lecture.title}</CardTitle>
+          <CardTitle>{lecture?.title}</CardTitle>
           <p className="text-sm text-gray-500">
-            Duration: {Math.floor(lecture.duration / 60)} mins
+            Duration: {lecture?.duration ? Math.floor(lecture.duration / 60) : "N/A"} mins
           </p>
         </CardHeader>
         <CardContent>
           {/* Video */}
           <video
             controls
-            src={lecture.videoUrl}
+            src={lecture?.videoUrl}
             className="w-full rounded-lg shadow"
           />
         </CardContent>
@@ -84,11 +86,11 @@ export default async function page() {
           <CardTitle>Quizzes</CardTitle>
         </CardHeader>
         <CardContent>
-          {lecture.quizzes.length === 0 ? (
+          {lecture?.quizzes.length === 0 ? (
             <p className="text-gray-500">No quizzes added yet.</p>
           ) : (
             <ul className="space-y-3">
-              {lecture.quizzes.map((quiz) => (
+              {lecture?.quizzes.map((quiz) => (
                 <li key={quiz.id} className="border p-3 rounded-md">
                   <p className="font-medium">{quiz.question}</p>
                   <p className="text-sm text-gray-500">
@@ -107,7 +109,7 @@ export default async function page() {
           <CardTitle>Attendance Logs</CardTitle>
         </CardHeader>
         <CardContent>
-          {lecture.attendanceLogs.length === 0 ? (
+          {lecture?.attendanceLogs.length === 0 ? (
             <p className="text-gray-500">No attendance records yet.</p>
           ) : (
             <table className="w-full text-sm border">
@@ -120,7 +122,7 @@ export default async function page() {
                 </tr>
               </thead>
               <tbody>
-                {lecture.attendanceLogs.map((log) => (
+                {lecture?.attendanceLogs.map((log) => (
                   <tr key={log.id} className="border-t">
                     <td className="p-2">{log.userId}</td>
                     <td className="p-2">

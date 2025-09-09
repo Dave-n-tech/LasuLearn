@@ -15,6 +15,8 @@ type VideoPlayerProps = {
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, lecture }) => {
   const { setShouldRefetch } = useStudentDashboard();
+  const [error, setError] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
 
@@ -75,6 +77,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, lecture }) => {
     const onMeta = () => {
       skipLimitRef.current = video.duration * 0.1; // 10% of duration
       lastTimeRef.current = video.currentTime || 0;
+      console.log("duration:", video.duration);
     };
 
     const onSeeking = () => {
@@ -358,7 +361,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, lecture }) => {
       }
     } catch (error: any) {
       console.error("Error marking attendance:", error);
-      toast.error(`⚠️ Error marking attendance: ${error.response.data.message}`);
+      toast.error(
+        `⚠️ Error marking attendance: ${error.response.data.message}`
+      );
     }
   };
 
@@ -408,6 +413,17 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, lecture }) => {
         </div>
       )}
 
+      {!loaded && !error && (
+        <p className="absolute inset-0 flex items-center justify-center text-white">
+          Loading video...
+        </p>
+      )}
+      {error && (
+        <p className="absolute inset-0 flex items-center justify-center text-red-500">
+          Failed to load video. Please try again later.
+        </p>
+      )}
+
       <div
         ref={videoContainerRef}
         className="mt-4 w-full aspect-video rounded-lg overflow-hidden bg-black relative group"
@@ -416,6 +432,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, lecture }) => {
           ref={videoRef}
           className="w-full h-full"
           poster={poster}
+          onLoadedData={() => setLoaded(true)}
+          onError={() => setError(true)}
           onEnded={() => {
             sendProgressToBackend();
             setIsPlaying(false);

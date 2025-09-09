@@ -150,7 +150,7 @@ export default function page() {
           </div>
         </div>
       </div>
-      <div className="bg-white rounded-xl shadow-sm p-6">
+      {/* <div className="bg-white rounded-xl shadow-sm p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <h2 className="text-lg font-semibold text-gray-900">
             Engagement Over Time
@@ -165,7 +165,7 @@ export default function page() {
             Engagement chart will be implemented here
           </p>
         </div>
-      </div>
+      </div> */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-200">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

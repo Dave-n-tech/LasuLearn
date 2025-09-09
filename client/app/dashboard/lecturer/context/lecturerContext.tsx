@@ -2,13 +2,13 @@
 import axios from "@/app/api/axios";
 import { useAppContext } from "@/app/context/AppContext";
 import { LecturerCourse, Role, User } from "@/app/types";
-import { usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface LecturerDashboardContextType {
   user: User | null;
   lecturerCourses: LecturerCourse[];
   setLecturerCourses: React.Dispatch<React.SetStateAction<LecturerCourse[]>>;
+  setShouldRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const lecturerDashboardContext = createContext<
@@ -22,6 +22,7 @@ export function LecturerDashboardProvider({
 }) {
   const { user } = useAppContext();
   const [lecturerCourses, setLecturerCourses] = useState<LecturerCourse[]>([]);
+  const [shouldRefresh, setShouldRefresh] = useState<boolean>(false);
   
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -42,13 +43,13 @@ export function LecturerDashboardProvider({
     }
 
     authData?.role === Role.LECTURER && fetchData();
-  }, []);
+  }, [shouldRefresh]);
 
   return (
     <lecturerDashboardContext.Provider
-      value={{ user, lecturerCourses, setLecturerCourses }}
+      value={{ user, lecturerCourses, setLecturerCourses, setShouldRefresh }}
     >
-      {children}
+      {children}a
     </lecturerDashboardContext.Provider>
   );
 }

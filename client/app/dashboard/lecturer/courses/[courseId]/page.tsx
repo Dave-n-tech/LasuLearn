@@ -6,100 +6,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import React from "react";
-
-type Lecture = {
-  id: number;
-  title: string;
-  duration: string;
-};
-
-type Course = {
-  id: string;
-  title: string;
-  code: string;
-  description: string;
-  lecturer: string;
-  studentsEnrolled: number;
-  lectures: number;
-  thumbnail: string;
-};
+import { useLecturerDashboard } from "../../context/lecturerContext";
 
 export default function page() {
   const { courseId } = useParams<{ courseId: string }>();
+  const { lecturerCourses } = useLecturerDashboard();
 
-  const mockCourses = [
-    {
-      id: "1",
-      title: "Advanced Web Development",
-      code: "CSC401",
-      description:
-        "Modern web development techniques focusing on React, Node.js, and cloud deployment.",
-      lecturer: "Dr. Jane Doe",
-      studentsEnrolled: 120,
-      lectures: 3,
-      thumbnail:
-        "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-      lectureVideos: [
-        { id: 1, title: "What is AI?", duration: "12:45" },
-        { id: 2, title: "History of AI", duration: "18:20" },
-        { id: 3, title: "Search Algorithms", duration: "25:10" },
-      ],
-    },
-    {
-      id: "2",
-      title: "Data Structures and Algorithms",
-      code: "CSC402",
-      description:
-        "Fundamental computer science concepts with practical implementations in JavaScript.",
-      lecturer: "Mr. John Smith",
-      studentsEnrolled: 95,
-      lectures: 8,
-      thumbnail:
-        "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-      lectureVideos: [],
-    },
-    {
-      id: "3",
-      title: "Mobile App Development",
-      code: "CSC403",
-      description:
-        "Cross-platform mobile development with React Native and Expo.",
-      lecturer: "Mr. John Smith",
-      studentsEnrolled: 95,
-      lectures: 8,
-      thumbnail:
-        "https://images.unsplash.com/photo-1526498460520-4c246339dccb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-      lectureVideos: [],
-    },
-    {
-      id: "4",
-      title: "UI/UX Design Principles",
-      code: "CSC404",
-      description:
-        "Design thinking and user experience fundamentals for digital products.",
-      lecturer: "Mr. John Smith",
-      studentsEnrolled: 95,
-      lectures: 8,
-      thumbnail:
-        "https://images.unsplash.com/photo-1541462608143-67571c6738dd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-      lectureVideos: [],
-    },
-    {
-      id: "5",
-      title: "Cloud Computing",
-      code: "CSC405",
-      description:
-        "AWS, Azure, and Google Cloud fundamentals with practical deployment strategies.",
-      lecturer: "Mr. John Smith",
-      studentsEnrolled: 95,
-      lectures: 8,
-      thumbnail:
-        "https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-      lectureVideos: [],
-    },
-  ];
-
-  const course = mockCourses.find((c) => c.id === courseId);
+  const course = lecturerCourses.find((c) => c.id === Number(courseId));
 
   if (!course) {
     return (
@@ -131,7 +44,7 @@ export default function page() {
 
       {/* Course Info */}
       <Card className="shadow-md">
-        <CardHeader className="flex justify-between items-center">
+        <CardHeader className="flex justify-between items-center flex-wrap">
           <CardTitle className="text-2xl font-bold flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-blue-600" />
             {course.title} ({course.code})
@@ -152,10 +65,10 @@ export default function page() {
           <div className="flex items-center gap-6 text-sm text-gray-600">
             <span className="flex items-center gap-1">
               <Users className="w-4 h-4" />
-              {course.studentsEnrolled} Enrolled
+              {course.enrollments.length} Enrolled
             </span>
             <span className="flex items-center gap-1">
-              📚 {course.lectures} Lectures
+              📚 {course.lectures.length} Lectures
             </span>
           </div>
         </CardContent>
@@ -165,7 +78,7 @@ export default function page() {
       <div>
         <h2 className="text-2xl font-semibold mb-4">Lecture Videos</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {course.lectureVideos?.map((lecture) => (
+          {course.lectures?.map((lecture) => (
             <Card key={lecture.id} className="hover:shadow-md transition">
               <CardHeader>
                 <CardTitle>{lecture.title}</CardTitle>
@@ -174,9 +87,11 @@ export default function page() {
                 <p className="text-sm text-gray-500">
                   Duration: {lecture.duration}
                 </p>
-                <Button variant="secondary" className="mt-3">
-                  View Lecture
-                </Button>
+                <Link href={`/dashboard/lecturer/content/${lecture.id}`}>
+                  <Button variant="secondary" className="mt-3">
+                    View Lecture
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           ))}

@@ -7,9 +7,9 @@ export type User = {
   email: string;
   role: Role;
   matricNo?: string;
-  level?:      string
-  faculty?:    string
-  department?: string
+  level?: string;
+  faculty?: string;
+  department?: string;
 };
 
 export interface SidebarLink {
@@ -33,7 +33,7 @@ export type RegisterFormData = {
   role: Role;
   level?: string;
   faculty?: string;
-  department?: string
+  department?: string;
 };
 
 export type LoginFormData = {
@@ -53,6 +53,8 @@ export type AppContextType = {
   login: (formData: LoginFormData) => void;
   register: (formData: RegisterFormData) => void;
   logout: () => void;
+  notifications: Notification[];
+  setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
   StudentSideBarLinks: SidebarLink[];
   LecturerSideBarLinks: SidebarLink[];
 };
@@ -193,8 +195,9 @@ export interface LecturerCourse {
   createdAt: Date;
   title: string;
   code: string;
-  description: string | null;
+  description: string;
   lecturerId: number;
+  thumbnail: string;
   enrollments: {
     id: number;
     userId: number;
@@ -216,6 +219,15 @@ export interface LecturerCourse {
       wasPresent: boolean;
     }[];
     quizzes: QuizQuestion[];
+    quizSubmissions: {
+      id: number;
+      userId: number;
+      isCorrect: boolean;
+      selectedAnswer: string;
+      quizId: number;
+      lectureId: number;
+      submittedAt: Date;
+    }[];
   }[];
 }
 

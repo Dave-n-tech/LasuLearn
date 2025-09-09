@@ -1,5 +1,5 @@
-'use client'
-import React, { useState } from 'react'
+"use client";
+import React, { useState } from "react";
 import {
   BookOpenIcon,
   PlusIcon,
@@ -9,87 +9,27 @@ import {
   CalendarIcon,
   MoreVerticalIcon,
   PlayIcon,
-} from 'lucide-react'
-import Link from 'next/link'
+} from "lucide-react";
+import Link from "next/link";
+import { useLecturerDashboard } from "../context/lecturerContext";
+import { formatDistanceToNow } from "date-fns";
 
 export default function page() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [showDropdown, setShowDropdown] = useState<number | null>(null)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showDropdown, setShowDropdown] = useState<number | null>(null);
+  const { lecturerCourses } = useLecturerDashboard();
 
-  // Mock course data
-  const courses = [
-    {
-      id: 1,
-      title: 'Advanced Web Development',
-      description:
-        'Modern web development techniques focusing on React, Node.js, and cloud deployment.',
-      lectures: 12,
-      students: 120,
-      created: 'Jan 15, 2024',
-      lastUpdated: 'Mar 10, 2024',
-      thumbnail:
-        'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
-    },
-    {
-      id: 2,
-      title: 'Data Structures and Algorithms',
-      description:
-        'Fundamental computer science concepts with practical implementations in JavaScript.',
-      lectures: 16,
-      students: 38,
-      created: 'Feb 3, 2024',
-      lastUpdated: 'Mar 5, 2024',
-      thumbnail:
-        'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
-    },
-    {
-      id: 3,
-      title: 'Mobile App Development',
-      description:
-        'Cross-platform mobile development with React Native and Expo.',
-      lectures: 10,
-      students: 32,
-      created: 'Dec 10, 2023',
-      lastUpdated: 'Feb 28, 2024',
-      thumbnail:
-        'https://images.unsplash.com/photo-1526498460520-4c246339dccb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
-    },
-    {
-      id: 4,
-      title: 'UI/UX Design Principles',
-      description:
-        'Design thinking and user experience fundamentals for digital products.',
-      lectures: 8,
-      students: 27,
-      created: 'Jan 25, 2024',
-      lastUpdated: 'Mar 12, 2024',
-      thumbnail:
-        'https://images.unsplash.com/photo-1541462608143-67571c6738dd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
-    },
-    {
-      id: 5,
-      title: 'Cloud Computing',
-      description:
-        'AWS, Azure, and Google Cloud fundamentals with practical deployment strategies.',
-      lectures: 14,
-      students: 22,
-      created: 'Mar 1, 2024',
-      lastUpdated: 'Mar 15, 2024',
-      thumbnail:
-        'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
-    },
-  ]
   // Filter courses based on search term
-  const filteredCourses = courses.filter((course) =>
-    course.title.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  const filteredCourses = lecturerCourses.filter((course) =>
+    course.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   const toggleDropdown = (courseId: number) => {
     if (showDropdown === courseId) {
-      setShowDropdown(null)
+      setShowDropdown(null);
     } else {
-      setShowDropdown(courseId)
+      setShowDropdown(courseId);
     }
-  }
+  };
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -173,15 +113,20 @@ export default function page() {
                 <div className="flex flex-wrap gap-3 mb-4">
                   <div className="flex items-center gap-1 text-sm text-gray-600">
                     <PlayIcon className="w-4 h-4 text-gray-400" />
-                    <span>{course.lectures} lectures</span>
+                    <span>{course.lectures.length} lectures</span>
                   </div>
                   <div className="flex items-center gap-1 text-sm text-gray-600">
                     <UsersIcon className="w-4 h-4 text-gray-400" />
-                    <span>{course.students} students</span>
+                    <span>{course.enrollments.length} students</span>
                   </div>
                   <div className="flex items-center gap-1 text-sm text-gray-600">
                     <CalendarIcon className="w-4 h-4 text-gray-400" />
-                    <span>Created {course.created}</span>
+                    <span>
+                      Created {" "}
+                      {formatDistanceToNow(new Date(course.createdAt), {
+                        addSuffix: true,
+                      })}
+                    </span>
                   </div>
                 </div>
                 <Link
@@ -196,5 +141,5 @@ export default function page() {
         </div>
       )}
     </div>
-  )
+  );
 }

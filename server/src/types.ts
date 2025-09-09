@@ -6,5 +6,5 @@ export interface JwtRequest extends Request {
     userId: number,
     role: Role
   },
-  file?: File
+  file?: Express.Multer.File;
 }

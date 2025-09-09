@@ -8,12 +8,13 @@ import {
   CheckCircleIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { useLecturerDashboard } from "../context/lecturerContext";
 
 // Mock lecturer data
 const mockLecturer = {
   firstName: "John",
-  lastName: "Doe",
-  email: "johndoe@university.edu",
+  lastName: "Smith",
+  email: "john.smith@lasu.edu",
   phone: "+234 801 234 5678",
   department: "Computer Science",
   faculty: "Faculty of Science",
@@ -26,9 +27,9 @@ const mockLecturer = {
 };
 
 export default function LecturerProfilePage() {
-  const userName = `${mockLecturer.firstName} ${mockLecturer.lastName}`;
-  const totalCourses = mockLecturer.coursesTaught.length;
-  const completedCourses = mockLecturer.completedCourses;
+  const { user, lecturerCourses } = useLecturerDashboard()
+  const userName = `${user?.firstName} ${user?.lastName}`;
+  const totalCourses = lecturerCourses.length;
 
   return (
     <div className="space-y-6">
@@ -43,8 +44,8 @@ export default function LecturerProfilePage() {
               <h2 className="text-xl font-semibold text-gray-900">
                 {userName}
               </h2>
-              <p className="text-sm text-gray-600">{mockLecturer.department}</p>
-              <p className="text-sm text-gray-600">{mockLecturer.faculty}</p>
+              <p className="text-sm text-gray-600">{user?.department}</p>
+              <p className="text-sm text-gray-600">{user?.faculty}</p>
             </div>
             <Link
               href={"/dashboard/edit-profile"}
@@ -62,11 +63,7 @@ export default function LecturerProfilePage() {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <MailIcon className="w-5 h-5 text-gray-400" />
-                <span className="text-gray-600">{mockLecturer.email}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <PhoneIcon className="w-5 h-5 text-gray-400" />
-                <span className="text-gray-600">{mockLecturer.phone}</span>
+                <span className="text-gray-600">{user?.email}</span>
               </div>
             </div>
           </div>
@@ -84,13 +81,7 @@ export default function LecturerProfilePage() {
                   {totalCourses}
                 </p>
               </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex items-center gap-3 mb-2">
-                  <CheckCircleIcon className="w-5 h-5 text-green-600" />
-                  <span className="font-medium text-gray-900">Completed Courses</span>
-                </div>
-                <p className="text-2xl font-semibold text-gray-900">{`${completedCourses} / ${totalCourses}`}</p>
-              </div>
+              
             </div>
           </div>
         </div>

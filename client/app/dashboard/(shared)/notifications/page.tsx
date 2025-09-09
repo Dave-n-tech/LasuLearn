@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
-import { useStudentDashboard } from "../../student/context/studentContext";
 import { formatDistanceToNow } from "date-fns";
 import axios from "@/app/api/axios";
+import { useAppContext } from "@/app/context/AppContext";
 
 export default function page() {
-  const { notifications, setNotifications } = useStudentDashboard();
+  const { notifications, setNotifications } = useAppContext();
   const token =
     typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
   const markAsReadUrl = "/notifications/:notificationId/mark-as-read";

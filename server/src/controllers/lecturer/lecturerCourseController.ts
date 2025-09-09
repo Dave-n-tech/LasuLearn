@@ -152,12 +152,21 @@ export const createCourse = async (req: JwtRequest, res: Response) => {
   const { title, code, description } = req.body;
 
   try {
+    let thumbnailUrl = null;
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "course_thumbnails",
+      });
+      thumbnailUrl = result.secure_url;
+    }
+
     const createdCourse = await prisma.course.create({
       data: {
         title,
         code,
         description,
         lecturerId: Number(lecturerId),
+        thumbnail: thumbnailUrl,
       },
     });
 
@@ -177,8 +186,8 @@ export const getCoursesByLecturerId = async (
 ) => {
   const lecturerId = req.user?.userId;
 
-  if(!lecturerId){
-    res.status(403).json({ message: "Unauthorized"})
+  if (!lecturerId) {
+    res.status(403).json({ message: "Unauthorized" });
   }
 
   try {
@@ -192,8 +201,8 @@ export const getCoursesByLecturerId = async (
             id: true,
             courseId: true,
             userId: true,
-            enrolledAt: true
-          }
+            enrolledAt: true,
+          },
         },
         lectures: {
           select: {
@@ -210,7 +219,18 @@ export const getCoursesByLecturerId = async (
                 question: true,
                 options: true,
                 correctAnswer: true,
-              }
+              },
+            },
+            quizSubmissions: {
+              select: {
+                id: true,
+                userId: true,
+                isCorrect: true,
+                selectedAnswer: true,
+                quizId: true,
+                lectureId: true,
+                submittedAt: true,
+              },
             },
             attendanceLogs: {
               select: {
@@ -218,12 +238,12 @@ export const getCoursesByLecturerId = async (
                 engagementScore: true,
                 wasPresent: true,
                 markedAt: true,
-                userId: true
-              }
-            }
-          }
-        }
-      }
+                userId: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (courses.length == 0) {
@@ -328,19 +348,18 @@ export const deleteCourseById = async (req: JwtRequest, res: Response) => {
 
 export const uploadLectureVideo = async (req: JwtRequest, res: Response) => {
   const courseId = parseInt(req.params.courseId);
-  const { title, duration } = req.body;
+  const { title } = req.body;
 
-  if (!req.files || !req.files.video) {
+  if (!req.file) {
+    console.log("No file uploaded");
     res.status(400).json({ message: "No video file uploaded" });
     return;
   }
 
-  const video = req.files.video as fileUpload.UploadedFile; // Assuming you're using multer for file uploads
-
   try {
-    const result = await cloudinary.uploader.upload(video.tempFilePath, {
+    const result = await cloudinary.uploader.upload(req.file.path, {
       resource_type: "video",
-      folder: "lecture videos",
+      folder: "lecture_videos",
     });
 
     const newLecture = await prisma.lecture.create({
@@ -348,7 +367,7 @@ export const uploadLectureVideo = async (req: JwtRequest, res: Response) => {
         title,
         videoUrl: result.secure_url,
         courseId,
-        duration: parseInt(duration),
+        duration: parseInt(result.duration) || 0,
       },
     });
 
@@ -556,7 +575,6 @@ export const deleteLectureById = async (req: JwtRequest, res: Response) => {
       return;
     }
 
-    
     // Delete associated lecture data first (if cascading is not enabled)
     await prisma.lectureProgress.deleteMany({ where: { lectureId } });
     await prisma.quiz.deleteMany({ where: { lectureId } });
@@ -570,7 +588,6 @@ export const deleteLectureById = async (req: JwtRequest, res: Response) => {
     res.status(200).json({
       message: "Lecture deleted successfully",
     });
-    
   } catch (error) {
     console.error("Error deleting lecture:", error);
     res.status(500).json({ message: "Internal server error" });
