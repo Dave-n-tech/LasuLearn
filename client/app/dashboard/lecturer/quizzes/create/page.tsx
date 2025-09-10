@@ -1,239 +1,171 @@
-'use client'
-import React, { useState } from 'react'
-// import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+"use client";
+import React, { useEffect, useState } from "react";
 import {
   ArrowLeftIcon,
   PlusIcon,
   TrashIcon,
   CheckIcon,
   XIcon,
-} from 'lucide-react'
-import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useLecturerDashboard } from "../../context/lecturerContext";
+import axios from "@/app/api/axios";
+import toast from "react-hot-toast";
+import { QuizQuestion } from "@/app/types";
 
-interface QuizQuestion {
-  id: number
-  question: string
-  options: {
-    id: number
-    text: string
-    isCorrect: boolean
-  }[]
-}
 export default function page() {
-//   const navigate = useNavigate()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const lectureId = searchParams.get('lectureId')
-  const [quizTitle, setQuizTitle] = useState('')
-  const [quizDescription, setQuizDescription] = useState('')
-  const [passingScore, setPassingScore] = useState(60)
+  const router = useRouter();
+  const { lecturerCourses, setShouldRefresh } = useLecturerDashboard();
+  const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<QuizQuestion[]>([
     {
       id: 1,
-      question: '',
-      options: [
-        {
-          id: 1,
-          text: '',
-          isCorrect: false,
-        },
-        {
-          id: 2,
-          text: '',
-          isCorrect: false,
-        },
-        {
-          id: 3,
-          text: '',
-          isCorrect: false,
-        },
-        {
-          id: 4,
-          text: '',
-          isCorrect: false,
-        },
-      ],
+      lectureId: "", // initialize empty, will be set later
+      question: "",
+      options: ["", "", "", ""], // just strings
+      correctAnswer: "",
     },
-  ])
-  // Mock lecture data
-  const lecture = lectureId
-    ? {
-        id: parseInt(lectureId),
-        title: 'Introduction to Modern Web Development',
-        course: 'Advanced Web Development',
-      }
-    : null
-  // Mock lectures for dropdown if no lectureId is provided
-  const lectures = [
-    {
-      id: 1,
-      title: 'Introduction to Modern Web Development',
-      course: 'Advanced Web Development',
-    },
-    {
-      id: 2,
-      title: 'React Fundamentals',
-      course: 'Advanced Web Development',
-    },
-    {
-      id: 3,
-      title: 'State Management with React Hooks',
-      course: 'Advanced Web Development',
-    },
-    {
-      id: 4,
-      title: 'Intro to Algorithms',
-      course: 'Data Structures and Algorithms',
-    },
-    {
-      id: 5,
-      title: 'Sorting Algorithms',
-      course: 'Data Structures and Algorithms',
-    },
-  ]
-  const [selectedLecture, setSelectedLecture] = useState(
-    lectureId ? parseInt(lectureId) : 0,
-  )
+  ]);
+
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+  const lectures = lecturerCourses.flatMap((course) =>
+    course.lectures.map((lecture) => ({
+      ...lecture,
+      courseTitle: course.title,
+    }))
+  );
+
+  const [selectedLecture, setSelectedLecture] = useState(0);
+
+  const lecture = selectedLecture
+    ? lectures.find((lec) => lec.id === Number(selectedLecture))
+    : null;
+
   const handleAddQuestion = () => {
     const newQuestion: QuizQuestion = {
       id: questions.length + 1,
-      question: '',
-      options: [
-        {
-          id: 1,
-          text: '',
-          isCorrect: false,
-        },
-        {
-          id: 2,
-          text: '',
-          isCorrect: false,
-        },
-        {
-          id: 3,
-          text: '',
-          isCorrect: false,
-        },
-        {
-          id: 4,
-          text: '',
-          isCorrect: false,
-        },
-      ],
-    }
-    setQuestions([...questions, newQuestion])
-  }
+      lectureId: "",
+      question: "",
+      options: ["", "", "", ""],
+      correctAnswer: "",
+    };
+    setQuestions([...questions, newQuestion]);
+  };
+
   const handleRemoveQuestion = (questionId: number) => {
-    setQuestions(questions.filter((q) => q.id !== questionId))
-  }
+    setQuestions(questions.filter((q) => q.id !== questionId));
+  };
+
   const handleQuestionChange = (questionId: number, value: string) => {
     setQuestions(
-      questions.map((q) => {
-        if (q.id === questionId) {
-          return {
-            ...q,
-            question: value,
-          }
-        }
-        return q
-      }),
-    )
-  }
+      questions.map((q) =>
+        q.id === questionId ? { ...q, question: value } : q
+      )
+    );
+  };
+
   const handleOptionChange = (
     questionId: number,
-    optionId: number,
-    value: string,
+    optionIndex: number,
+    value: string
+  ) => {
+    setQuestions(
+      questions.map((q) =>
+        q.id === questionId
+          ? {
+              ...q,
+              options: q.options.map((o, i) => (i === optionIndex ? value : o)),
+            }
+          : q
+      )
+    );
+  };
+
+  const handleCorrectOptionChange = (
+    questionId: number,
+    optionIndex: number
   ) => {
     setQuestions(
       questions.map((q) => {
-        if (q.id === questionId) {
-          return {
-            ...q,
-            options: q.options.map((o) => {
-              if (o.id === optionId) {
-                return {
-                  ...o,
-                  text: value,
-                }
-              }
-              return o
-            }),
-          }
-        }
-        return q
-      }),
-    )
-  }
-  const handleCorrectOptionChange = (questionId: number, optionId: number) => {
-    setQuestions(
-      questions.map((q) => {
-        if (q.id === questionId) {
-          return {
-            ...q,
-            options: q.options.map((o) => {
-              return {
-                ...o,
-                isCorrect: o.id === optionId,
-              }
-            }),
-          }
-        }
-        return q
-      }),
-    )
-  }
+        console.log(q.options[optionIndex]);
+
+        return q.id === questionId
+          ? {
+              ...q,
+              correctAnswer: q.options[optionIndex], // store the string
+            }
+          : q;
+      })
+    );
+  };
+
   const handleAddOption = (questionId: number) => {
     setQuestions(
       questions.map((q) => {
         if (q.id === questionId) {
           return {
             ...q,
-            options: [
-              ...q.options,
-              {
-                id: q.options.length + 1,
-                text: '',
-                isCorrect: false,
-              },
-            ],
-          }
+            options: [...q.options, ""],
+          };
         }
-        return q
-      }),
-    )
-  }
-  const handleRemoveOption = (questionId: number, optionId: number) => {
+        return q;
+      })
+    );
+  };
+
+  const handleRemoveOption = (questionId: number, option: string) => {
     setQuestions(
       questions.map((q) => {
         if (q.id === questionId) {
           return {
             ...q,
-            options: q.options.filter((o) => o.id !== optionId),
-          }
+            options: q.options.filter((o) => o !== option),
+          };
         }
-        return q
-      }),
-    )
-  }
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // In a real application, this would create the quiz in the database
-    alert(`Quiz "${quizTitle}" created successfully!`)
-    // Navigate back to the lecture detail page or quiz management
-    if (lectureId) {
-      router.push(`/lecturer/lectures/${lectureId}`)
-    } else {
-      router.push('/lecturer/quizzes')
+        return q;
+      })
+    );
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        `/lecturers/lectures/${selectedLecture}/quizzes`,
+        {
+          quizzes: questions,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Succesfully created quiz", res.data);
+      toast.success("Quiz created successfully");
+      setShouldRefresh(true);
+      router.push("/dashboard/lecturer/quizzes");
+    } catch (error) {
+      console.error("Error creating quiz", error);
+      toast.error(
+        "An error occurred while creating the quiz! Kindly try again."
+      );
+    } finally {
+      setLoading(false);
     }
-  }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Link
-          href={
-            lectureId ? `/dashboard/lecturer/lectures/${lectureId}` : '/dashboard/lecturer/quizzes'
-          }
+          href={"/dashboard/lecturer/quizzes"}
           className="text-gray-500 hover:text-gray-700"
         >
           <ArrowLeftIcon className="w-5 h-5" />
@@ -249,23 +181,6 @@ export default function page() {
           <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label
-                  htmlFor="title"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Quiz Title
-                </label>
-                <input
-                  type="text"
-                  id="title"
-                  value={quizTitle}
-                  onChange={(e) => setQuizTitle(e.target.value)}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  placeholder="e.g. Web Development Basics Quiz"
-                  required
-                />
-              </div>
-              <div>
                 {lecture ? (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -274,7 +189,7 @@ export default function page() {
                     <div className="flex items-center gap-2 p-2 border border-gray-300 rounded-md bg-gray-50">
                       <span>{lecture.title}</span>
                       <span className="text-sm text-gray-500">
-                        ({lecture.course})
+                        ({lecture.courseTitle})
                       </span>
                     </div>
                   </div>
@@ -300,47 +215,13 @@ export default function page() {
                       </option>
                       {lectures.map((lecture) => (
                         <option key={lecture.id} value={lecture.id}>
-                          {lecture.title} ({lecture.course})
+                          {lecture.title} ({lecture.courseTitle})
                         </option>
                       ))}
                     </select>
                   </div>
                 )}
               </div>
-            </div>
-            <div>
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Description (Optional)
-              </label>
-              <textarea
-                id="description"
-                rows={3}
-                value={quizDescription}
-                onChange={(e) => setQuizDescription(e.target.value)}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                placeholder="Brief description of what this quiz covers"
-              ></textarea>
-            </div>
-            <div>
-              <label
-                htmlFor="passing-score"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Passing Score (%)
-              </label>
-              <input
-                type="number"
-                id="passing-score"
-                value={passingScore}
-                onChange={(e) => setPassingScore(parseInt(e.target.value))}
-                className="block w-32 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                min={0}
-                max={100}
-                required
-              />
             </div>
           </div>
           <div className="border-t border-gray-200 pt-6">
@@ -392,42 +273,40 @@ export default function page() {
                         Answer Options
                       </label>
                       <div className="space-y-2">
-                        {question.options.map((option) => (
-                          <div
-                            key={option.id}
-                            className="flex items-center gap-2"
-                          >
+                        {question.options.map((option, index) => (
+                          <div key={index} className="flex items-center gap-2">
                             <button
                               type="button"
                               onClick={() =>
-                                handleCorrectOptionChange(
-                                  question.id,
-                                  option.id,
-                                )
+                                handleCorrectOptionChange(question.id, index)
                               }
-                              className={`flex items-center justify-center w-6 h-6 rounded-full border ${option.isCorrect ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 text-transparent'}`}
+                              className={`flex items-center justify-center w-6 h-6 rounded-full border ${
+                                option === question.correctAnswer
+                                  ? "bg-green-500 border-green-500 text-white"
+                                  : "border-gray-300 text-transparent"
+                              }`}
                             >
                               <CheckIcon className="w-4 h-4" />
                             </button>
                             <input
                               type="text"
-                              value={option.text}
+                              value={option}
                               onChange={(e) =>
                                 handleOptionChange(
                                   question.id,
-                                  option.id,
-                                  e.target.value,
+                                  index,
+                                  e.target.value
                                 )
                               }
                               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                              placeholder={`Option ${option.id}`}
+                              placeholder={`Option ${index}`}
                               required
                             />
                             {question.options.length > 2 && (
                               <button
                                 type="button"
                                 onClick={() =>
-                                  handleRemoveOption(question.id, option.id)
+                                  handleRemoveOption(question.id, option)
                                 }
                                 className="text-red-600 hover:text-red-700"
                               >
@@ -465,25 +344,16 @@ export default function page() {
             </div>
           </div>
           <div className="flex justify-end gap-3 border-t border-gray-200 pt-6">
-            <Link
-              href={
-                lectureId
-                  ? `/lecturer/lectures/${lectureId}`
-                  : '/lecturer/quizzes'
-              }
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-            >
-              Cancel
-            </Link>
             <button
               type="submit"
+              disabled={loading}
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
             >
-              Create Quiz
+              {loading ? "Creating..." : "Create Quiz"}
             </button>
           </div>
         </form>
       </div>
     </div>
-  )
+  );
 }

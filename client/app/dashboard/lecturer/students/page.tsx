@@ -1,101 +1,161 @@
-'use client'
-import React, { useState } from 'react'
-import { UsersIcon, SearchIcon, FilterIcon, DownloadIcon } from 'lucide-react'
-import Link from 'next/link'
+"use client";
+import React, { useEffect, useState } from "react";
+import { UsersIcon, SearchIcon, FilterIcon, DownloadIcon } from "lucide-react";
+import Link from "next/link";
+import { useLecturerDashboard } from "../context/lecturerContext";
+import { LecturerCourse } from "@/app/types";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import toast from "react-hot-toast";
 
 export default function page() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filter, setFilter] = useState('all')
-  const [selectedCourse, setSelectedCourse] = useState('all')
-  // Mock courses data
-  const courses = [
-    {
-      id: 1,
-      title: 'Advanced Web Development',
-    },
-    {
-      id: 2,
-      title: 'Data Structures and Algorithms',
-    },
-    {
-      id: 3,
-      title: 'Mobile App Development',
-    },
-    {
-      id: 4,
-      title: 'UI/UX Design Principles',
-    },
-  ]
-  // Mock students data
-  const students = [
-    {
-      id: 1,
-      name: 'Emma Wilson',
-      email: 'emma.wilson@university.edu',
-      courses: [1, 2, 4],
-      lastActive: '2 hours ago',
-      progress: 85,
-      engagement: 92,
-    },
-    {
-      id: 2,
-      name: 'Michael Chen',
-      email: 'michael.chen@university.edu',
-      courses: [1, 3],
-      lastActive: '1 day ago',
-      progress: 78,
-      engagement: 85,
-    },
-    {
-      id: 3,
-      name: 'Sophia Rodriguez',
-      email: 'sophia.rodriguez@university.edu',
-      courses: [1, 2, 3, 4],
-      lastActive: '3 hours ago',
-      progress: 92,
-      engagement: 95,
-    },
-    {
-      id: 4,
-      name: 'James Johnson',
-      email: 'james.johnson@university.edu',
-      courses: [2, 4],
-      lastActive: '5 days ago',
-      progress: 65,
-      engagement: 70,
-    },
-    {
-      id: 5,
-      name: 'Olivia Brown',
-      email: 'olivia.brown@university.edu',
-      courses: [1, 3],
-      lastActive: '1 hour ago',
-      progress: 88,
-      engagement: 90,
-    },
-  ]
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [selectedCourse, setSelectedCourse] = useState("all");
+  const { lecturerCourses, setShouldRefresh } = useLecturerDashboard();
+
+  useEffect(() => {
+    console.log(lecturerCourses);
+  }, []);
+
+  // Calculate engagement and progress for a student in a course
+  function calculateMetrics(student: any, course: LecturerCourse) {
+    const totalLectures = course.lectures.length;
+
+    if (totalLectures === 0) {
+      return { progress: 0, engagement: 0 };
+    }
+
+    // Progress = watched lectures / total lectures
+    const watchedLectures = course.lectures.filter((lecture) =>
+      student.lectureProgresses.some(
+        (p: any) => p.lectureId === lecture.id && p.watched
+      )
+    ).length;
+
+    const progress = Math.round((watchedLectures / totalLectures) * 100);
+
+    // Engagement = average engagement score across attended lectures
+    const lectureLogs = course.lectures.flatMap((lecture) =>
+      lecture.attendanceLogs.filter((log) => log.userId === student.id)
+    );
+
+    let engagement = 0;
+    if (lectureLogs.length > 0) {
+      engagement = Math.round(
+        lectureLogs.reduce((sum, log) => sum + (log.engagementScore || 0), 0) /
+          lectureLogs.length
+      );
+    }
+
+    return { progress, engagement };
+  }
+
+  const students = lecturerCourses.flatMap((course) =>
+    course.enrollments.map((enrollment) => {
+      const user = enrollment.user;
+      const { progress, engagement } = calculateMetrics(user, course);
+
+      return {
+        ...user,
+        courseId: course.id,
+        courseTitle: course.title,
+        progress,
+        engagement,
+      };
+    })
+  );
+
   // Filter students based on search term, filter, and selected course
   const filteredStudents = students.filter((student) => {
     const matchesSearch =
-      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchTerm.toLowerCase())
+      student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.email.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesCourse =
-      selectedCourse === 'all' ||
-      student.courses.includes(parseInt(selectedCourse))
-    if (filter === 'all') return matchesSearch && matchesCourse
-    if (filter === 'high-engagement')
-      return matchesSearch && matchesCourse && student.engagement >= 90
-    if (filter === 'low-engagement')
-      return matchesSearch && matchesCourse && student.engagement < 75
-    return matchesSearch && matchesCourse
-  })
+      selectedCourse === "all" || student.courseId === parseInt(selectedCourse);
+
+    if (filter === "all") return matchesSearch && matchesCourse;
+    if (filter === "high-engagement")
+      return matchesSearch && matchesCourse && student.engagement >= 90;
+    if (filter === "low-engagement")
+      return matchesSearch && matchesCourse && student.engagement < 75;
+    return matchesSearch && matchesCourse;
+  });
+
+  const handleExportPDF = () => {
+    if (!filteredStudents || filteredStudents.length === 0) {
+      alert("No student data available to export.");
+      return;
+    }
+
+    try {
+      const doc = new jsPDF();
+
+      // Title
+      doc.setFontSize(16);
+      const title =
+        selectedCourse && selectedCourse !== "all"
+          ? `Student Report - ${selectedCourse}`
+          : "Student Report - All Courses";
+      doc.text(title, 14, 20);
+
+      // Build table
+      const tableColumn = [
+        "Name",
+        "Email",
+        "Course",
+        "Progress (%)",
+        "Engagement (%)",
+      ];
+      const tableRows = filteredStudents.map((student) => [
+        `${student.firstName} ${student.lastName}`,
+        student.email,
+        student.courseTitle,
+        `${student.progress}%`,
+        `${student.engagement}%`,
+      ]);
+
+      // AutoTable
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 30,
+        styles: { fontSize: 10 },
+        headStyles: { fillColor: [0, 123, 255] },
+      });
+
+      // Footer
+      const pageHeight = doc.internal.pageSize.height;
+      doc.setFontSize(10);
+      doc.text("Generated by Lecturer Dashboard", 14, pageHeight - 10);
+
+      // Save
+      const fileName =
+        selectedCourse && selectedCourse !== "all"
+          ? `student-report-${selectedCourse}.pdf`
+          : "student-report-all.pdf";
+
+      doc.save(fileName);
+      toast.success("PDF report generated successfully!");
+    } catch (error) {
+      console.log("Error generating PDF:", error);
+      toast.error(
+        "An error occurred while generating the PDF. Please try again."
+      );
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Students</h1>
-        <button className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 sm:ml-auto">
+        <button
+          onClick={handleExportPDF}
+          className="cursor-pointer flex items-center gap-1 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 sm:ml-auto"
+        >
           <DownloadIcon className="w-4 h-4" />
-          <span>Export Report</span>
+          <span>Export Report as PDF</span>
         </button>
       </div>
       <div className="bg-white rounded-xl shadow-sm">
@@ -137,7 +197,7 @@ export default function page() {
                   className="pl-4 pr-4 py-2 border border-gray-200 rounded-lg appearance-none bg-white w-full"
                 >
                   <option value="all">All Courses</option>
-                  {courses.map((course) => (
+                  {lecturerCourses.map((course) => (
                     <option key={course.id} value={course.id}>
                       {course.title}
                     </option>
@@ -175,18 +235,12 @@ export default function page() {
                 >
                   Engagement
                 </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Last Active
-                </th>
-                <th
+                {/* <th
                   scope="col"
                   className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Actions
-                </th>
+                </th> */}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -201,7 +255,7 @@ export default function page() {
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {student.name}
+                          {student.firstName} {student.lastName}
                         </div>
                         <div className="text-sm text-gray-600">
                           {student.email}
@@ -211,14 +265,20 @@ export default function page() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-600">
-                      {student.courses.length} courses
+                      {student.enrollments.length} courses
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
                         <div
-                          className={`h-2 rounded-full ${student.progress >= 90 ? 'bg-green-500' : student.progress >= 75 ? 'bg-blue-500' : 'bg-yellow-500'}`}
+                          className={`h-2 rounded-full ${
+                            student.progress >= 90
+                              ? "bg-green-500"
+                              : student.progress >= 75
+                              ? "bg-blue-500"
+                              : "bg-yellow-500"
+                          }`}
                           style={{
                             width: `${student.progress}%`,
                           }}
@@ -233,7 +293,13 @@ export default function page() {
                     <div className="flex items-center">
                       <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
                         <div
-                          className={`h-2 rounded-full ${student.engagement >= 90 ? 'bg-green-500' : student.engagement >= 75 ? 'bg-blue-500' : 'bg-yellow-500'}`}
+                          className={`h-2 rounded-full ${
+                            student.engagement >= 90
+                              ? "bg-green-500"
+                              : student.engagement >= 75
+                              ? "bg-blue-500"
+                              : "bg-yellow-500"
+                          }`}
                           style={{
                             width: `${student.engagement}%`,
                           }}
@@ -244,19 +310,14 @@ export default function page() {
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-600">
-                      {student.lastActive}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <Link
                       href={`/dashboard/lecturer/students/${student.id}`}
                       className="text-blue-600 hover:text-blue-900"
                     >
                       View Profile
                     </Link>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>
@@ -264,6 +325,5 @@ export default function page() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-

@@ -203,6 +203,31 @@ export interface LecturerCourse {
     userId: number;
     courseId: number;
     enrolledAt: Date;
+    user: {
+      id: number;
+      firstName: string;
+      lastName: string;
+      matricNo: string;
+      email: string;
+      enrollments: {
+        id: number;
+        courseId: number;
+      }[];
+      attendanceLogs: {
+        id: number;
+        lectureId: number;
+        engagementScore: number;
+      }[];
+      lectureProgresses: {
+        id: number;
+        lectureId: number;
+        watched: boolean;
+        completedAt: Date;
+        watchTime: number;
+        playbackSpeed: number;
+        skippedTime: true;
+      }[];
+    };
   }[];
   lectures: {
     id: number;
@@ -218,6 +243,10 @@ export interface LecturerCourse {
       engagementScore: number;
       wasPresent: boolean;
     }[];
+    progresses: {
+      id: number;
+      watchTime: number;
+    }[];
     quizzes: QuizQuestion[];
     quizSubmissions: {
       id: number;
@@ -229,6 +258,7 @@ export interface LecturerCourse {
       submittedAt: Date;
     }[];
   }[];
+  discussionPosts: DiscussionPost[];
 }
 
 // export interface LecturerDashboardData {

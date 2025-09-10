@@ -1,18 +1,39 @@
 "use client";
 import { Disc, MessageSquareIcon } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useStudentDashboard } from "../student/context/studentContext";
 import DiscussionCard from "./DiscussionCard";
+import axios from "@/app/api/axios";
+import { useLecturerDashboard } from "../lecturer/context/lecturerContext";
+import { EnrolledCourse, LecturerCourse, Role } from "@/app/types";
 
 export default function CourseDiscussions() {
   const { enrolledCourses } = useStudentDashboard();
+  const { lecturerCourses } = useLecturerDashboard();
+  const [courses, setCourses] = useState<(EnrolledCourse | LecturerCourse)[]>(
+    []
+  );
+  const [authData, setAuthData] = useState<any>(null);
+
+  useEffect(() => {
+    const storedAuthData = localStorage.getItem("authData");
+    const authData = storedAuthData ? JSON.parse(storedAuthData) : null;
+    setAuthData(authData);
+  }, []);
 
   // get number of replies for each discussion post
-  const discusionReplies = enrolledCourses.map((enrolled) => {
-    return enrolled.course.discussionPosts.reduce((acc, post) => {
-      return acc + (post.replies ?? []).length;
-    }, 0);
-  });
+  const discusionReplies =
+    authData?.role === Role.STUDENT
+      ? enrolledCourses.map((enrolled) => {
+          return enrolled.course.discussionPosts.reduce((acc, post) => {
+            return acc + (post.replies ?? []).length;
+          }, 0);
+        })
+      : lecturerCourses.map((course) => {
+          return course.discussionPosts.reduce((acc, post) => {
+            return acc + (post.replies ?? []).length;
+          }, 0);
+        });
 
   return (
     <div className="bg-white rounded-xl shadow-sm">
@@ -24,9 +45,6 @@ export default function CourseDiscussions() {
               Course Discussions
             </h2>
           </div>
-          {/* <button className="text-sm text-blue-600 hover:text-blue-700">
-            Start New Discussion
-          </button> */}
         </div>
       </div>
       <div className="p-6">
@@ -36,6 +54,15 @@ export default function CourseDiscussions() {
               <DiscussionCard
                 key={enrolled.id}
                 enrolled={enrolled}
+                index={i}
+                replies={discusionReplies}
+              />
+            ))
+          ) : lecturerCourses.length !== 0 ? (
+            lecturerCourses.map((course, i) => (
+              <DiscussionCard
+                key={course.id}
+                course={course}
                 index={i}
                 replies={discusionReplies}
               />

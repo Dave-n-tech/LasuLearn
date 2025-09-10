@@ -208,6 +208,31 @@ export const getCoursesByLecturerId = async (
                 firstName: true,
                 lastName: true,
                 matricNo: true,
+                email: true,
+                enrollments: {
+                  select: {
+                    id: true,
+                    courseId: true,
+                  },
+                },
+                attendanceLogs: {
+                  select: {
+                    id: true,
+                    lectureId: true,
+                    engagementScore: true,
+                  },
+                },
+                lectureProgresses: {
+                  select: {
+                    id: true,
+                    lectureId: true,
+                    watched: true,
+                    completedAt: true,
+                    watchTime: true,
+                    playbackSpeed: true,
+                    skippedTime: true,
+                  },
+                },
               },
             },
           },
@@ -247,6 +272,48 @@ export const getCoursesByLecturerId = async (
                 wasPresent: true,
                 markedAt: true,
                 userId: true,
+              },
+            },
+            progresses: {
+              select: {
+                id: true,
+                watchTime: true,
+              },
+            },
+          },
+        },
+        discussionPosts: {
+          select: {
+            id: true,
+            userId: true,
+            courseId: true,
+            content: true,
+            createdAt: true,
+            updatedAt: true,
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                role: true,
+              },
+            },
+            replies: {
+              select: {
+                id: true,
+                postId: true,
+                userId: true,
+                content: true,
+                createdAt: true,
+                updatedAt: true,
+                user: {
+                  select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    role: true,
+                  },
+                },
               },
             },
           },

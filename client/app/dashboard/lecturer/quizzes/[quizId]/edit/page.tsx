@@ -83,8 +83,8 @@ export default function page() {
 
       console.log("Quiz updated:", data);
       toast.success("Quiz updated successfully");
-      setShouldRefresh(true);
       router.push(`/dashboard/lecturer/quizzes`);
+      setShouldRefresh(true);
     } catch (error) {
       console.error("Error updating quiz:", error);
       toast.error("Failed to update quiz");

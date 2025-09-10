@@ -46,6 +46,10 @@ export default function page() {
     course.lectures.map((lecture) => lecture.quizSubmissions)
   );
 
+  useEffect(() => {
+    console.log("Quiz Submissions:", quizSubmissions);
+  }, []);
+
   function getLectureAverage(submissions: QuizSubmission[], lectureId: number) {
     const lectureSubs = submissions.filter((s) => s.lectureId === lectureId);
     if (lectureSubs.length === 0) return 0;
@@ -55,10 +59,7 @@ export default function page() {
   }
 
   const filteredQuizzes = quizzes.filter((quiz) => {
-    quiz.averageScore = getLectureAverage(
-      quizSubmissions.flat(),
-      quiz.id
-    );
+    quiz.averageScore = getLectureAverage(quizSubmissions.flat(), quiz.id);
 
     const matchesSearch =
       quiz.lectureTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -76,10 +77,10 @@ export default function page() {
       await axios.delete(`/lecturers/lectures/quizzes/${quizId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
-        }
-      })
+        },
+      });
       toast.success("Quiz successfully deleted");
-      setShouldRefresh(true)
+      setShouldRefresh(true);
     } catch (error) {
       console.error("Error deleting quiz:", error);
       toast.error("Failed to delete quiz. Please try again.");
@@ -171,7 +172,7 @@ export default function page() {
                   quiz.averageScore = getLectureAverage(
                     quizSubmissions.flat(),
                     quiz.id
-                  );      
+                  );
                   return (
                     <tr key={quiz.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -189,30 +190,30 @@ export default function page() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-600">
-                          {quizSubmissions[i].length}
+                          {quizSubmissions[i] ? quizSubmissions[i].length : 0}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                          <div
-                            className={`h-2 rounded-full ${
-                              quiz.averageScore >= 90
-                                ? "bg-green-500"
-                                : quiz.averageScore >= 75
-                                ? "bg-blue-500"
-                                : "bg-yellow-500"
-                            }`}
-                            style={{
-                              width: `${quiz.averageScore}%`,
-                            }}
-                          ></div>
+                        <div className="flex items-center">
+                          <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                            <div
+                              className={`h-2 rounded-full ${
+                                quiz.averageScore >= 90
+                                  ? "bg-green-500"
+                                  : quiz.averageScore >= 75
+                                  ? "bg-blue-500"
+                                  : "bg-yellow-500"
+                              }`}
+                              style={{
+                                width: `${quiz.averageScore}%`,
+                              }}
+                            ></div>
+                          </div>
+                          <span className="text-sm text-gray-600">
+                            {quiz.averageScore}%
+                          </span>
                         </div>
-                        <span className="text-sm text-gray-600">
-                          {quiz.averageScore}%
-                        </span>
-                      </div>
-                    </td>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                         {/* <Link
                         href={`/dashboard/lecturer/quizzes/${quiz.id}`}

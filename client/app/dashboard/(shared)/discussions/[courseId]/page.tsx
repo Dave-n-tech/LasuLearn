@@ -1,19 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Course, DiscussionPost, DiscussionReply } from "@/app/types";
-import {
-  ArrowLeftIcon,
-  ReplyIcon,
-  SendIcon,
-  Loader2,
-  UserIcon,
-} from "lucide-react";
+import { Course, DiscussionPost, LecturerCourse } from "@/app/types";
+import { ArrowLeftIcon, ReplyIcon, SendIcon, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { useAppContext } from "@/app/context/AppContext";
 import axios from "@/app/api/axios";
 import { useStudentDashboard } from "@/app/dashboard/student/context/studentContext";
+import { useLecturerDashboard } from "@/app/dashboard/lecturer/context/lecturerContext";
 
 export default function Page() {
   const { courseId } = useParams<{ courseId: string }>();
@@ -25,9 +20,9 @@ export default function Page() {
     setLoading,
     error,
     setError,
-    setEnrolledCourses
   } = useStudentDashboard();
-  const [course, setCourse] = useState<Course>({} as Course);
+  const { lecturerCourses, setShouldRefresh } = useLecturerDashboard();
+  const [course, setCourse] = useState<LecturerCourse | Course>({} as Course);
   const [discussionPosts, setDiscussionPosts] = useState<DiscussionPost[]>([]);
   const [newPost, setNewPost] = useState("");
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -40,9 +35,11 @@ export default function Page() {
   const postReplyUrl = "/discussions/post/:postId/reply";
 
   useEffect(() => {
-    const foundCourse = enrolledCourses.find(
-      (enrolled) => String(enrolled.course.id) === String(courseId)
-    )?.course;
+    const foundCourse =
+      enrolledCourses.find(
+        (enrolled) => String(enrolled.course.id) === String(courseId)
+      )?.course ||
+      lecturerCourses.find((course) => String(course.id) === String(courseId));
     setCourse(foundCourse || ({} as Course));
     setDiscussionPosts(foundCourse?.discussionPosts || []);
   }, [courseId, enrolledCourses]);
@@ -73,6 +70,7 @@ export default function Page() {
       setError("An error occurred while sending post. Please try again!");
     } finally {
       setShouldRefetch((prev) => !prev);
+      setShouldRefresh((prev) => !prev);
       setLoading(false);
     }
     setNewPost("");
