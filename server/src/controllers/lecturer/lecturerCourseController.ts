@@ -202,6 +202,14 @@ export const getCoursesByLecturerId = async (
             courseId: true,
             userId: true,
             enrolledAt: true,
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                matricNo: true,
+              },
+            },
           },
         },
         lectures: {

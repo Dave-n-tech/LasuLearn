@@ -1,23 +1,62 @@
 "use client";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useLecturerDashboard } from "../../../context/lecturerContext";
+import axios from "@/app/api/axios";
+import toast from "react-hot-toast";
 
 export default function page() {
   const { quizId } = useParams<{ quizId: string }>();
   const router = useRouter();
+  const { lecturerCourses, setShouldRefresh } = useLecturerDashboard();
+  const [loading, setLoading] = useState(false);
 
-  // Mock quiz data (replace with fetch to your API or DB)
-  const [quiz, setQuiz] = useState({
-    id: Number(quizId),
-    question: "What is 2 + 2?",
-    options: ["2", "3", "4", "5"],
-    correctAnswer: "4",
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+  const foundQuiz = lecturerCourses
+    .flatMap((c) => c.lectures.flatMap((lecture) => lecture.quizzes))
+    .find((q) => q.id === Number(quizId));
+
+  const [quiz, setQuiz] = useState(() => {
+    if (foundQuiz) {
+      return {
+        ...foundQuiz,
+        options:
+          typeof foundQuiz.options === "string"
+            ? (JSON.parse(foundQuiz.options))
+            : (foundQuiz.options),
+      };
+    }
+    return {
+      id: Number(quizId),
+      lectureId: "",
+      question: "",
+      options: ["", "", "", ""],
+      correctAnswer: "",
+    };
   });
+
+  const normalizedOptions = Array.isArray(quiz.options)
+  ? quiz.options
+  : (() => {
+      try {
+        return JSON.parse(quiz.options as unknown as string);
+      } catch {
+        return [];
+      }
+    })();
+
+
+  useEffect(() => {
+    console.log("Found quiz:", foundQuiz);
+    console.log(quiz)
+  }, [])
 
   const handleOptionChange = (index: number, value: string) => {
     const newOptions = [...quiz.options];
@@ -25,11 +64,34 @@ export default function page() {
     setQuiz({ ...quiz, options: newOptions });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Quiz updated:", quiz);
-    // TODO: Send update request to backend
-    router.push(`/lecturer/quizzes/${quiz.id}`);
+
+    setLoading(true);
+    try {
+      const { data } = await axios.patch(
+        `/lecturers/lectures/quizzes/${quiz.id}`,
+        {
+          question: quiz.question,
+          options: JSON.stringify(quiz.options),
+          correctAnswer: quiz.correctAnswer,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
+
+      console.log("Quiz updated:", data);
+      toast.success("Quiz updated successfully");
+      setShouldRefresh(true);
+      router.push(`/dashboard/lecturer/quizzes`);
+    } catch (error) {
+      console.error("Error updating quiz:", error);
+      toast.error("Failed to update quiz");
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -58,7 +120,7 @@ export default function page() {
             {/* Options */}
             <div className="space-y-2">
               <Label>Options</Label>
-              {quiz.options.map((option, index) => (
+              {normalizedOptions.map((option: string, index: number) => (
                 <Input
                   key={index}
                   value={option}
@@ -83,7 +145,7 @@ export default function page() {
             </div>
 
             <Button type="submit" className="w-full">
-              Save Changes
+              {loading ? "Saving..." : "Save Changes"}
             </Button>
           </form>
         </CardContent>

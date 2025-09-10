@@ -10,9 +10,10 @@ import axios from "@/app/api/axios";
 import toast from "react-hot-toast";
 
 export default function page() {
+  const router = useRouter();
   const { courseId } = useParams<{ courseId: string }>();
   const { lecturerCourses, setShouldRefresh } = useLecturerDashboard();
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const course = lecturerCourses.find((c) => c.id === Number(courseId));
 
@@ -26,6 +27,8 @@ export default function page() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setLoading(true);
     try {
       const { data } = await axios.patch(
         `/lecturers/courses/${courseId}`,
@@ -42,12 +45,14 @@ export default function page() {
       console.log("Course updated:", data);
       toast.success("Course updated successfully");
       setShouldRefresh(true);
+      router.push(`/dashboard/lecturer/courses/${courseId}`);
     } catch (error) {
       console.error("Error updating course:", error);
       toast.error("Failed to update course");
+      setLoading(false);
+    } finally{
+      setLoading(false)
     }
-
-    router.push(`/dashboard/lecturer/courses/${courseId}`); // or wherever you want after saving
   };
 
   return (
@@ -107,7 +112,7 @@ export default function page() {
               />
             </div>
             <Button type="submit" className="w-full">
-              Save Changes
+              {loading ? "Saving..." : "Save Changes"}
             </Button>
           </form>
         </CardContent>

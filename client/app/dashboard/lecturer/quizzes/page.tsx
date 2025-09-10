@@ -54,10 +54,6 @@ export default function page() {
     return (correctCount / lectureSubs.length) * 100; // percentage score
   }
 
-  useEffect(() => {
-    console.log(quizSubmissions);
-  }, []);
-
   const filteredQuizzes = quizzes.filter((quiz) => {
     quiz.averageScore = getLectureAverage(
       quizSubmissions.flat(),
