@@ -37,3 +37,5 @@ app.use("/api/lecturers", lecturerRoutes);
 app.listen(process.env.PORT || PORT, () => {
   console.log(`Server running on port ${PORT || process.env.PORT}`);
 });
+
+export default app;
