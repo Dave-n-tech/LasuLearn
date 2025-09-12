@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { Role } from "../../generated/prisma";
+import { Role } from "@prisma/client";
 import { JwtRequest } from "../types";
 
 export const verifyToken = (allowedRoles: Role[]) => {

@@ -1,5 +1,5 @@
-import { PrismaClient } from '../generated/prisma';
-import {Course, Lecture, Quiz, Role, User} from "../generated/prisma"
+import { PrismaClient } from "@prisma/client";
+import { Role } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
@@ -91,7 +91,8 @@ async function main() {
     data: {
       title: "Introduction to Artificial Intelligence",
       code: "CSC401",
-      description: "Fundamentals of AI including search, reasoning, and machine learning.",
+      description:
+        "Fundamentals of AI including search, reasoning, and machine learning.",
       lecturerId: lecturer1.id,
       thumbnail: "https://placehold.co/600x400/AI",
     },
@@ -150,7 +151,12 @@ async function main() {
     data: [
       {
         question: "Who is considered the father of Artificial Intelligence?",
-        options: JSON.stringify(["Alan Turing", "John McCarthy", "Andrew Ng", "Geoffrey Hinton"]),
+        options: JSON.stringify([
+          "Alan Turing",
+          "John McCarthy",
+          "Andrew Ng",
+          "Geoffrey Hinton",
+        ]),
         correctAnswer: "John McCarthy",
         lectureId: lecture1.id,
       },
@@ -175,7 +181,7 @@ async function main() {
 // Execute the main seeding function
 main()
   .catch((e) => {
-    console.error('An error occurred during seeding:', e);
+    console.error("An error occurred during seeding:", e);
     process.exit(1);
   })
   .finally(async () => {

@@ -1,6 +1,6 @@
 import { Response } from "express";
 import prisma from "../../utils/prismaClient";
-import { Role } from "../../../generated/prisma";
+import { Role } from "@prisma/client";
 import { JwtRequest } from "../../types";
 
 export const getLecturerById = async (req: JwtRequest, res: Response) => {

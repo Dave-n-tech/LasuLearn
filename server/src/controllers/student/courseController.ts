@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { JwtRequest } from "../../types";
 import prisma from "../../utils/prismaClient";
-import { Role } from "../../../generated/prisma";
-import { Quiz } from "../../../generated/prisma";
+import { Role } from "@prisma/client";
+import { Quiz } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import { Parser } from "json2csv";
 import { uploadToCloudinary } from "../../utils/cloudinary";

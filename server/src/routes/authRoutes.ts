@@ -2,7 +2,7 @@ import express from "express";
 const router = express.Router();
 import { login, registerStudent, registerLecturer, registerAdmin, refreshAccessToken, logout, verifyAccessToken } from "../controllers/authController";
 import { verifyToken } from "../middleware/authMiddleware";
-import { Role } from "../../generated/prisma";
+import { Role } from "@prisma/client";
 
 // shared login
 router.post("/login", login);

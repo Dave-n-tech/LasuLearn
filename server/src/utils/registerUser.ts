@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt"
-import { Role, User } from "../../generated/prisma";
+import { Role, User } from "@prisma/client";
 import { generateAccessToken, generateRefreshToken } from "./generateTokens";
 import prisma from "../utils/prismaClient"
 

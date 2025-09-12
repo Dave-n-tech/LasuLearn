@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../../utils/prismaClient";
-import { Role } from "../../../generated/prisma";
+import { Role } from "@prisma/client";
 
 export const getAllStudents = async (req: Request, res: Response) => {
   // get all students

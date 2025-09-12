@@ -1,6 +1,6 @@
 import express from "express";
 import { verifyToken } from "../middleware/authMiddleware";
-import { Role } from "../../generated/prisma";
+import { Role } from "@prisma/client";
 import { enrollInCourse, getAllCourses, getCourseDetails, getEnrolledCourses, getStudentCourseAttendance} from "../controllers/student/courseController";
 import { getAllStudents, getStudentById, updateStudentById } from "../controllers/student/studentController";
 import { getLectureProgress, getAllLectureProgressForStudent, markAttendance, submitQuizResponse, updateLectureProgress, getLectureById } from "../controllers/student/lectureController";

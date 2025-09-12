@@ -3,7 +3,7 @@ import prisma from "../../utils/prismaClient";
 import { JwtRequest } from "../../types";
 import fileUpload from "express-fileupload";
 import cloudinary from "../../utils/cloudinary";
-import { Role } from "../../../generated/prisma";
+import { Role } from "@prisma/client";
 
 export const getStudentsEnrolledInCourse = async (
   req: JwtRequest,

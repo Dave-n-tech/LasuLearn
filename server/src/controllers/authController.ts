@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../utils/prismaClient";
-import { Role } from "../../generated/prisma";
+import { Role } from "@prisma/client";
 import {
   generateAccessToken,
   generateRefreshToken,
