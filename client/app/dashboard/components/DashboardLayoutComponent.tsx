@@ -34,13 +34,18 @@ export default function DashboardLayoutComponent({ children }: { children: React
   
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-gray-100">
-        <p className="text-lg text-gray-700">Loading dashboard...</p>
-        {/* You can add a spinner here */}
-      </div>
-    );
-  }
+  return (
+    <div className="flex flex-col justify-center items-center h-screen bg-gray-100 space-y-4">
+      {/* Spinner */}
+      <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+
+      <p className="text-lg text-gray-700 font-medium">
+        Loading dashboard...
+      </p>
+    </div>
+  );
+}
+
 
   if (!user) {
     return null;

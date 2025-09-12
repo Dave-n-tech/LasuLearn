@@ -13,7 +13,7 @@ export default function LoginForm() {
     remember: false,
   });
   const [role, setRole] = useState<Role>(Role.STUDENT);
-  const { login, error, setError } = useAppContext();
+  const { login, error, setError, loading, setLoading } = useAppContext();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -42,6 +42,7 @@ export default function LoginForm() {
     e.preventDefault();
     console.log("Logged In with data: ", formData);
 
+    setLoading(true);
     try {
       await login(formData);
       setFormData({
@@ -51,7 +52,12 @@ export default function LoginForm() {
       });
     } catch (error) {
       console.error(error);
+      setLoading(false);
+    } finally {
+      setLoading(false);
     }
+    
+    // Redirect based on role
     const dashboardPath =
       role === Role.STUDENT
         ? "/dashboard/student"
@@ -147,7 +153,7 @@ export default function LoginForm() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      {/* <div className="flex items-center justify-between">
         <div className="flex items-center">
           <input
             id="remember"
@@ -174,14 +180,14 @@ export default function LoginForm() {
             Forgot your password?
           </a>
         </div>
-      </div>
+      </div> */}
 
       <div>
         <button
           type="submit"
           className="flex w-full justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
-          Sign in
+          {loading ? "Signing in..." : "Sign in"}
         </button>
       </div>
     </form>

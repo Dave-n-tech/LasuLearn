@@ -19,7 +19,7 @@ export default function RegisterForm() {
     role: Role.STUDENT,
   });
   const pathname = usePathname();
-  const { register, error, setError } = useAppContext();
+  const { register, error, setError, loading, setLoading } = useAppContext();
   const router = useRouter();
 
   useEffect(() => {
@@ -42,6 +42,7 @@ export default function RegisterForm() {
     e.preventDefault();
     console.log("Form submitted with data: ", formData);
 
+    setLoading(true);
     try {
       await register(formData);
       setFormData({
@@ -65,6 +66,9 @@ export default function RegisterForm() {
       router.push(dashboardPath);
     } catch (error) {
       console.error(error);
+      setLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -293,7 +297,7 @@ export default function RegisterForm() {
           type="submit"
           className="flex w-full justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
-          Register
+          {loading ? "Registering..." : "Register"}
         </button>
       </div>
     </form>

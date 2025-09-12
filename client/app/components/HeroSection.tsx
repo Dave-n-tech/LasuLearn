@@ -1,8 +1,12 @@
+"use client";
 import React from "react";
 import { PlayIcon, UsersIcon, BookOpenIcon } from "lucide-react";
 import Link from "next/link";
+import { useAppContext } from "../context/AppContext";
 
 export default function HeroSection() {
+  const { user } = useAppContext();
+
   return (
     <section className="bg-gradient-to-br from-blue-800 via-blue-900 to-teal-800 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -18,17 +22,32 @@ export default function HeroSection() {
               video-based platform. Track attendance through intelligent
               playback monitoring and interactive quizzes.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Link href={"/login/student"} className="text-center bg-teal-600 hover:bg-teal-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
-                Login as Student
+            {user ? (
+              <Link
+                href={`/dashboard/${user.role.toLowerCase()}/?id=${user.id}`}
+                className="inline-block bg-teal-600 hover:bg-teal-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors mb-12"
+              >
+                Dashboard
               </Link>
-              <Link href={"/login/lecturer"} className="text-center bg-transparent border-2 border-white hover:bg-white hover:text-blue-900 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
-                Login as Lecturer
-              </Link>
-              {/* <Link href={"/login/admin"} className="text-center bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-4 mb-12">
+                <Link
+                  href={"/login/student"}
+                  className="text-center bg-teal-600 hover:bg-teal-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
+                >
+                  Login as Student
+                </Link>
+                <Link
+                  href={"/login/lecturer"}
+                  className="text-center bg-transparent border-2 border-white hover:bg-white hover:text-blue-900 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
+                >
+                  Login as Lecturer
+                </Link>
+                {/* <Link href={"/login/admin"} className="text-center bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
                 Admin Access
               </Link> */}
-            </div>
+              </div>
+            )}
             <div className="flex items-center gap-8 text-blue-100">
               <div className="flex items-center gap-2">
                 <PlayIcon className="w-5 h-5" />
