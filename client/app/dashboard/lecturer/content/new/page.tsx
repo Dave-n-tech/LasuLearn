@@ -27,6 +27,30 @@ export default function Page() {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
 
+  const sendNotifications = async (courseId: number) => {
+    const course = lecturerCourses.find((c) => c.id === courseId);
+
+    try {
+      const res = await axios.post(
+        `/notifications/course/${courseId}`,
+        {
+          title: "New Lecture added",
+          message: `A new lecture titled "${title}" has been added to your course ${course?.title}-${course?.code}. Check it out!`,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast.success("Notifications sent to enrolled students.");
+    } catch (error) {
+      console.error("Error sending notifications:", error);
+      toast.error("Failed to send notifications to students.");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -53,6 +77,7 @@ export default function Page() {
 
       console.log(res.data);
       toast.success("Lecture created successfully!");
+      await sendNotifications(courseId);
       setShouldRefresh(true);
       router.push(`/dashboard/lecturer/courses/${courseId}`);
     } catch (err) {
@@ -120,7 +145,11 @@ export default function Page() {
         </div>
 
         {/* Submit */}
-        <Button disabled={loading} type="submit" className="w-full cursor-pointer">
+        <Button
+          disabled={loading}
+          type="submit"
+          className="w-full cursor-pointer"
+        >
           {loading ? "creating..." : "Create Lecture"}
         </Button>
       </form>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 
 export default function CTASection() {
 
@@ -14,12 +15,9 @@ export default function CTASection() {
             Join thousands of educators and students already using our platform
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors">
-              Start Free Trial
-            </button>
-            <button className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-blue-600 transition-colors">
-              Schedule Demo
-            </button>
+            <Link href={"/register/student"} className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors">
+              Get Started
+            </Link>
           </div>
         </div>
       </div>

@@ -85,7 +85,7 @@ export default function page() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-500">
-                  Duration: {lecture.duration}
+                  Duration: {lecture.duration} seconds
                 </p>
                 <Link href={`/dashboard/lecturer/content/${lecture.id}`}>
                   <Button variant="secondary" className="mt-3">
