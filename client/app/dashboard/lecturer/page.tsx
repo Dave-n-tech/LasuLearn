@@ -1,7 +1,6 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { PlayIcon, BookOpenIcon, ClockIcon } from "lucide-react";
-import Link from "next/link";
 import LecturerDashboardStats from "../components/LecturerDashboardStats";
 import { useLecturerDashboard } from "./context/lecturerContext";
 
@@ -32,12 +31,6 @@ export default function page() {
     const correct = submissions.filter((s) => s.isCorrect).length;
     return (correct / submissions.length) * 100;
   })();
-
-  useEffect(() => {
-    console.log("Lecturer courses", lecturerCourses);
-
-    // console.log("enrollments", totalStudents)
-  }, [lecturerCourses]);
 
   // Mock data
   const stats = {
