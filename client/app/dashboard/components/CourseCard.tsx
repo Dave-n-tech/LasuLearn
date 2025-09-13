@@ -45,7 +45,7 @@ export default function CourseCard() {
                       enrolled.course.lectures.length
                     } lectures • ${getNumberofQuizzes(
                       enrolled.course.lectures
-                    )} quizzes`}</p>
+                    )} ${getNumberofQuizzes(enrolled.course.lectures) > 1 ? "quizzes" : "quiz"}`}</p>
                   </div>
                 </div>
                 <div className="text-sm text-blue-600">

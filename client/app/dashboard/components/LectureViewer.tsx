@@ -41,9 +41,9 @@ export default function LectureViewer({ lectureId }: Props) {
 
   return (
     <div>
-      <p className="text-sm text-gray-500 font-sans"> It is advisable to watch in fullscreen view, so you can see the quizzes properly</p>
       <h1 className="text-2xl font-bold mb-4">Title: {lecture.title}</h1>
       <VideoPlayer src={lecture.videoUrl} lecture={lecture} />
+      <p className="text-sm text-gray-600 font-sans mt-8 bg-gray-300 rounded-md p-2">Tip: Watch in fullscreen view, so you can attempt the quizzes properly</p>
     </div>
   );
 }
