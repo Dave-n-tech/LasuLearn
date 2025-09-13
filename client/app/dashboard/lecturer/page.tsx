@@ -74,7 +74,7 @@ export default function page() {
       <LecturerDashboardStats stats={stats} />
 
       {/* Recent Activity */}
-      <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+      {/* <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
           Recent Activity
         </h2>
@@ -120,7 +120,7 @@ export default function page() {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
