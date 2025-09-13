@@ -23,14 +23,22 @@ export default function HeroSection() {
               playback monitoring and interactive quizzes.
             </p>
             {user ? (
-              <Link
-                href={`/dashboard/${user.role.toLowerCase()}/?id=${user.id}`}
-                className="inline-block bg-teal-600 hover:bg-teal-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors mb-12"
-              >
-                Dashboard
-              </Link>
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <Link
+                  href={`/dashboard/${user.role.toLowerCase()}/?id=${user.id}`}
+                  className="inline-block bg-teal-600 hover:bg-teal-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors mb-12"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href={"https://forms.gle/ChLQD5SbsPB6YUBt9"}
+                  className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors mb-12"
+                >
+                  Share Feedback
+                </Link>
+              </div>
             ) : (
-              <div className="flex flex-col sm:flex-row gap-4 mb-12">
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Link
                   href={"/login/student"}
                   className="text-center bg-teal-600 hover:bg-teal-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
@@ -42,6 +50,12 @@ export default function HeroSection() {
                   className="text-center bg-transparent border-2 border-white hover:bg-white hover:text-blue-900 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
                 >
                   Login as Lecturer
+                </Link>
+                <Link
+                  href={"https://forms.gle/ChLQD5SbsPB6YUBt9"}
+                  className="text-center bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
+                >
+                  Share Feedback
                 </Link>
                 {/* <Link href={"/login/admin"} className="text-center bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
                 Admin Access
