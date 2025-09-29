@@ -16,7 +16,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://192.168.208.38:3000", "https://lasuvlp-2-0-client.vercel.app"],
+    origin: ["http://localhost:3000", "http://192.168.208.38:3000", "https://lasuvlp-2-0-client.vercel.app", "https://lasulearn.vercel.app"],
     credentials: true,
     methods: ["GET", "POST", "PATCH", "DELETE"],
   })
