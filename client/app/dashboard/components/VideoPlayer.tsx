@@ -246,7 +246,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, lecture }) => {
   // Custom Control Handlers
   const togglePlay = () => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !loaded) return;
+
     if (video.paused) {
       video.play();
       setIsPlaying(true);
@@ -414,12 +415,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, lecture }) => {
       )}
 
       {!loaded && !error && (
-        <p className="absolute inset-0 flex items-center justify-center text-white">
-          Loading video...
+        <p className="w-full bg-blue-200 text-blue-500 text-center p-2 z-50 m-auto">
+          Please wait while we load the video...
         </p>
       )}
       {error && (
-        <p className="absolute inset-0 flex items-center justify-center text-red-500">
+        <p className="w-full bg-red-200 text-red-500 text-center p-2 z-50 m-auto">
           Failed to load video. Please try again later.
         </p>
       )}
@@ -462,7 +463,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, lecture }) => {
           {/* Top Row (Buttons + Volume) */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Play/Pause */}
-            <button onClick={togglePlay} className="text-white">
+            <button onClick={togglePlay} 
+              className="text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!loaded || error}>
               {isPaused ? (
                 <Play size={18} className="sm:size-8" />
               ) : (
@@ -471,7 +474,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, lecture }) => {
             </button>
 
             {/* Volume */}
-            <button onClick={toggleMute} className="text-white">
+            <button onClick={toggleMute} className="text-white cursor-pointer">
               {muted || volume === 0 ? (
                 <VolumeX size={18} />
               ) : (
@@ -493,7 +496,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, lecture }) => {
             {/* Fullscreen */}
             <button
               onClick={handleFullscreen}
-              className="text-white ml-auto sm:ml-2"
+              className="text-white ml-auto sm:ml-2 cursor-pointer"
             >
               <Fullscreen size={18} className="sm:size-8" />
             </button>

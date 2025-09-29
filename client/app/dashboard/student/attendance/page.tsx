@@ -14,8 +14,6 @@ export default function page() {
     (lecture) => lecture.attendanceLogs[0]?.wasPresent
   ).length;
 
-  console.log("attended lectures: ", attendedLectures);
-
   const attendancePercent =
     totalLectures > 0
       ? ((attendedLectures / totalLectures) * 100).toFixed(1)
@@ -33,12 +31,10 @@ export default function page() {
         ).toFixed(1)
       : 0;
 
-  const quizzes = lectures.flatMap((lecture) => lecture.quizzes);
-  const passedQuizzes = lectures.flatMap((lecture) => {
-    lecture.quizSubmissions.filter((sub) => sub.isCorrect);
-  });
-
-  console.log(`Quiz result: ${passedQuizzes.length}/${quizzes.length}`);
+  // const quizzes = lectures.flatMap((lecture) => lecture.quizzes);
+  // const passedQuizzes = lectures.flatMap((lecture) => {
+  //   lecture.quizSubmissions.filter((sub) => sub.isCorrect);
+  // });
 
   return (
     <div className="p-4 sm:p-6">
