@@ -34,6 +34,11 @@ export default function RegisterForm() {
           setFormData((prevState) => ({ ...prevState, role: Role.LECTURER }));
           console.log("Role set to LECTURER based on path");
         }
+      } else if (pathname.endsWith("admin")) {
+        if (formData.role !== Role.ADMIN) {
+          setFormData((prevState) => ({ ...prevState, role: Role.ADMIN }));
+          console.log("Role set to ADMIN based on path");
+        }
       }
     }
   }, [pathname, formData.role]);
@@ -61,7 +66,9 @@ export default function RegisterForm() {
       const dashboardPath =
         formData.role === Role.STUDENT
           ? "/dashboard/student"
-          : "/dashboard/lecturer";
+          : formData.role === Role.LECTURER
+          ? "/dashboard/lecturer"
+          : "/dashboard/admin";
 
       router.push(dashboardPath);
     } catch (error) {

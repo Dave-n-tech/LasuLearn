@@ -165,7 +165,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("authToken", access_token);
       setToken(access_token);
       localStorage.setItem("authData", JSON.stringify(user));
-      console.log("User logged in:", user);
+      console.log("User logged in:", user.id);
     } catch (error: any) {
       console.error("Login failed:", error);
       setError(
@@ -183,7 +183,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const endpoint =
       formData.role === Role.STUDENT
         ? "/auth/student/register"
-        : "/auth/lecturer/register";
+        : formData.role === Role.LECTURER
+        ? "/auth/lecturer/register"
+        : "/auth/admin/register";
 
     const credentials = {
       firstname: formData.firstName,
@@ -207,7 +209,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("authToken", access_token);
       setToken(access_token);
       localStorage.setItem("authData", JSON.stringify(user));
-      console.log("user registered: ", user);
+      console.log("user registered: ", user.id);
     } catch (error: any) {
       console.error("Registration failed: ", error);
       setError(
